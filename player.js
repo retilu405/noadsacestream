@@ -1,13 +1,13 @@
 TorrentStream.FakePlayer = function(gContainer, gConf)
 {
     var self = this,
-        _doc = gContainer.ownerDocument  document,
+        _doc = gContainer.ownerDocument || document,
         _eventHandler = null,
         $ = TorrentStream.jQuery;
         
     function log(msg) {
         try {
-            console.log(FakePlayer  + msg);
+            console.log("FakePlayer: " + msg);
         }
         catch(e) {
         }
@@ -17,9 +17,9 @@ TorrentStream.FakePlayer = function(gContainer, gConf)
         if(gConf.checkInstalled) {
             getEngineVersionJsonP(function(version) {
                     if(version === null) {
-                         engine is not running (consider not installed)
+                        // engine is not running (consider not installed)
                         if(typeof gConf.onError === 'function') {
-                            gConf.onError.call(self, plugin_not_installed);
+                            gConf.onError.call(self, "plugin_not_installed");
                         }
                     }
                     else {
@@ -30,7 +30,7 @@ TorrentStream.FakePlayer = function(gContainer, gConf)
             });
         }
         else {
-             call onLoad immediatelly
+            // call onLoad immediatelly
             if(typeof gConf.onLoad === 'function') {
                 gConf.onLoad.call(self);
             }
@@ -39,128 +39,128 @@ TorrentStream.FakePlayer = function(gContainer, gConf)
     
     function displayAceStreamLink(contentId) {
         if(!_eventHandler) {
-            log(displayAceStreamLink missing event handler);
+            log("displayAceStreamLink: missing event handler");
             return;
         }
         if(typeof _eventHandler.displayAceStreamLink !== 'function') {
-            log(displayAceStreamLink event handler has no method displayAceStreamLink());
+            log("displayAceStreamLink: event handler has no method displayAceStreamLink()");
             return;
         }
         _eventHandler.displayAceStreamLink(contentId);
     }
     
-     get content id from server using jsonp api
+    // get content id from server using jsonp api
     function getContentIdByUrl(conf) {
         
         function onError(errorMessage) {
-            if(typeof conf.onError === function) {
+            if(typeof conf.onError === "function") {
                 conf.onError.call(null, errorMessage);
             }
         }
         
         function onSuccess(contentId) {
-            if(typeof conf.onSuccess === function) {
+            if(typeof conf.onSuccess === "function") {
                 conf.onSuccess.call(null, contentId);
             }
         }
         
         $.ajax({
-                url api.torrentstream.netuploadjsonp,
-                jsonp callback,
-                dataType jsonp,
-                data {
-                    url conf.url,
-                    d conf.developerId  0,
-                    a conf.affiliateId  0,
-                    z conf.zoneId  0
+                url: "//api.torrentstream.net/upload/jsonp",
+                jsonp: "callback",
+                dataType: "jsonp",
+                data: {
+                    url: conf.url,
+                    d: conf.developerId || 0,
+                    a: conf.affiliateId || 0,
+                    z: conf.zoneId || 0
                 },
-                success function(response) {
+                success: function(response) {
                     try {
                         if(response.error) {
-                            throw api error  + response.error;
+                            throw "api error: " + response.error;
                         }
                         if(!response.id) {
-                            throw missing id in response;
+                            throw "missing id in response";
                         }
                         onSuccess(response.id);
                     }
                     catch(e) {
-                        onError(failed  + e);
+                        onError("failed: " + e);
                     }
                 },
-                error function() {
-                    onError(request failed);
+                error: function() {
+                    onError("request failed");
                 }
         });
     }
     
     function getEngineVersionJsonP(callback) {
         $.ajax({
-                url localhost6878webuiapiservicemethod=get_version&format=jsonp,
-                jsonp callback,
-                dataType jsonp,
-                timeout 2000,
-                success function(response) {
+                url: "//localhost:6878/webui/api/service?method=get_version&format=jsonp",
+                jsonp: "callback",
+                dataType: "jsonp",
+                timeout: 2000,
+                success: function(response) {
                     try {
                         if(response.error) {
-                            throw api error  + response.error;
+                            throw "api error: " + response.error;
                         }
                         if(!response.result) {
-                            throw missing result in response;
+                            throw "missing result in response";
                         }
                         if(!response.result.code) {
-                            throw missing code in result;
+                            throw "missing code in result";
                         }
-                        log(getEngineVersionJsonP got engine version  + response.result.code);
-                        if(typeof callback === function) {
+                        log("getEngineVersionJsonP: got engine version: " + response.result.code);
+                        if(typeof callback === "function") {
                             callback.call(null, response.result.code);
                         }
                     }
                     catch(e) {
-                        log(getEngineVersionJsonP request failed  + e);
-                        if(typeof callback === function) {
+                        log("getEngineVersionJsonP: request failed: " + e);
+                        if(typeof callback === "function") {
                             callback.call(null, null);
                         }
                     }
                 },
-                error function() {
-                    log(getEngineVersionJsonP request failed);
-                    if(typeof callback === function) {
+                error: function() {
+                    log("getEngineVersionJsonP: request failed");
+                    if(typeof callback === "function") {
                         callback.call(null, null);
                     }
                 }
         });
     }
     
-     load... methods
+    // load... methods
     this.loadTorrent = function(url, conf) {
         if(typeof conf !== 'object') {
             conf = {};
         }
         getContentIdByUrl({
-                url url,
-                affiliateId conf.affiliateId,
-                zoneId conf.zoneId,
-                developerId conf.developerId,
-                onSuccess function(contentId) {
+                url: url,
+                affiliateId: conf.affiliateId,
+                zoneId: conf.zoneId,
+                developerId: conf.developerId,
+                onSuccess: function(contentId) {
                     displayAceStreamLink(contentId);
                 },
-                onError function(error) {
+                onError: function(error) {
                     alert(error);
                 }
         });
     };
     
     this.loadRawTorrent = function(url, conf) {
-        throw loadRawTorrent() not implemented for Android;
+        throw "loadRawTorrent() not implemented for Android";
     };
     
     this.loadUrl = function(url, conf) {
-        throw loadUrl() not implemented for Android;
+        throw "loadUrl() not implemented for Android";
     };
     
     this.loadInfohash = function(infohash, conf) {
-        throw loadInfohash() not implemented for Android;
+        throw "loadInfohash() not implemented for Android";
     };
     
     this.loadPlayer = function(contentId, conf) {
@@ -170,12 +170,12 @@ TorrentStream.FakePlayer = function(gContainer, gConf)
         displayAceStreamLink(contentId);
     };
     
-     controls
+    // controls
     this.registerEventHandler = function(handler) {
         _eventHandler = handler;
     };
     
-     dummy methods
+    // dummy methods
     this.getVideoAspectRatioList = function() {
         return [];
     };
@@ -219,9 +219,9 @@ TorrentStream.Player = function(container, conf)
         
         try {
             if(!msg) {
-                msg = ;
+                msg = "";
             }
-            msg = Player + msg;
+            msg = "Player::" + msg;
             console.log(msg);
         }
         catch(e) {}
@@ -236,306 +236,307 @@ TorrentStream.Player = function(container, conf)
     _lastMediaData = null,
     _mediaData = null,
     _playerBlocked = false,
-    _forceAutoplay = true,
+    _forceAutoplay = false,
     
     _lastStartedItem = -1,
     _bgprocessStatusCounter = 0,
     
-    VER_1_0_2 = getVersion(1.0.2),
-    VER_1_0_3 = getVersion(1.0.3),
-    VER_1_0_4 = getVersion(1.0.4),
-    VER_1_0_5 = getVersion(1.0.5),
-    VER_2_0_10 = getVersion(2.0.10),
+    VER_1_0_2 = getVersion("1.0.2"),
+    VER_1_0_3 = getVersion("1.0.3"),
+    VER_1_0_4 = getVersion("1.0.4"),
+    VER_1_0_5 = getVersion("1.0.5"),
+    VER_2_0_10 = getVersion("2.0.10"),
         
     MEDIA_TYPE = {
-            TORRENT_URL 1,
-            DIRECT_URL 2,
-            INFOHASH 3,
-            PLAYER_ID 4,
-            TORRENT_RAW 5
+            TORRENT_URL: 1,
+            DIRECT_URL: 2,
+            INFOHASH: 3,
+            PLAYER_ID: 4,
+            TORRENT_RAW: 5
         },
         
         BGP_STATE = {
-            IDLE 0,
-            PREBUFFERING 1,
-            DOWNLOADING 2,
-            BUFFERING 3,
-            COMPLETED 4,
-            HASHCHECKING 5,
-            ERROR 6,
-            CONNECTING 7,
-            LOADING 8
+            IDLE: 0,
+            PREBUFFERING: 1,
+            DOWNLOADING: 2,
+            BUFFERING: 3,
+            COMPLETED: 4,
+            HASHCHECKING: 5,
+            ERROR: 6,
+            CONNECTING: 7,
+            LOADING: 8
         },
         BGP_STATE_NAMES = ['idle', 'prebuf', 'dl', 'buf', 'completed', 'check', 'error', 'connecting', 'loading'],
 
         PLUGIN_STATE = {
-            IDLE 0,
-            OPENING 1,
-            BUFFERING 2,
-            PLAYING 3,
-            PAUSED 4,
-            STOPPING 5,
-            STOPPED 6,
-            ERROR 7
+            IDLE: 0,
+            OPENING: 1,
+            BUFFERING: 2,
+            PLAYING: 3,
+            PAUSED: 4,
+            STOPPING: 5,
+            STOPPED: 6,
+            ERROR: 7
         },
         PLUGIN_STATE_NAMES = ['idle', 'opening', 'buffering', 'playing', 'paused', 'stopping', 'stopped', 'error'],
 
         MEDIA_STATE = {
-            LOADING 0,
-            IDLE 1,
-            HASHCHECKING 2,
-            PREBUFFERING 3,
-            BUFFERING 4,
-            PLAYING 5,
-            PAUSED 6,
-            STOPPED 7,
-            ERROR 8,
-            CONNECTING 9
+            LOADING: 0,
+            IDLE: 1,
+            HASHCHECKING: 2,
+            PREBUFFERING: 3,
+            BUFFERING: 4,
+            PLAYING: 5,
+            PAUSED: 6,
+            STOPPED: 7,
+            ERROR: 8,
+            CONNECTING: 9
         },
         MEDIA_STATE_NAMES = ['loading', 'idle', 'check', 'prebuf', 'buf', 'play', 'pause', 'stop', 'error', 'connecting'],
     
     _lastMessage = null,
     _lastMessageType = null,
     
-     custom vars associated with player
+    // custom vars associated with player
     vars = {},
     
     triggers = {
-        skipMediaState true,
-        lockBgProcessState true,
-        mediaStarted false,
-        stopClicked false,
-        nextClicked false,
-        prevClicked false,
-        skipEngineStatus 0
+        skipMediaState: true,
+        lockBgProcessState: true,
+        mediaStarted: false,
+        stopClicked: false,
+        nextClicked: false,
+        prevClicked: false,
+        skipEngineStatus: 0
     },
     
     status = {
         
-        mediaState MEDIA_STATE.CONNECTING,
+        mediaState: MEDIA_STATE.CONNECTING,
         
-        video {
-            subtitle {
-                count 0,
-                current -1,
-                values []
+        video: {
+            subtitle: {
+                count: 0,
+                current: -1,
+                values: []
             },
-            aspect_ratio {
-                current 0,
-                values [default, 11, 43, 169, 1610, 221100, 54]
+            aspect_ratio: {
+                current: 0,
+                values: ["default", "1:1", "4:3", "16:9", "16:10", "221:100", "5:4"]
             },
-            crop {
-                current 0,
-                values [default, 169, 1610, 185100, 239100, 53, 43, 54, 11]
+            crop: {
+                current: 0,
+                values: ["default", "16:9", "16:10", "185:100", "239:100", "5:3", "4:3", "5:4", "1:1"]
             }
         },
-        audio {
-            track {
-                count 0,
-                current -1,
-                values []
+        audio: {
+            track: {
+                count: 0,
+                current: -1,
+                values: []
             },
-            channel {
-                current 0,
-                values [default, stereo, reverseStereo, left, right, dolby]
+            channel: {
+                current: 0,
+                values: ["default", "stereo", "reverseStereo", "left", "right", "dolby"]
             }
         }
         
     },
     
     pluginData = {
-        inputState PLUGIN_STATE.IDLE,
-        time 0,
-        duration 0,
-        progress 0,
-        volume 0,
-        muted false,
-        version VER_1_0_2,
-        stringVersion 1.0.2,
-        countPlaylistItems 0,
-        isAd false,
-        isInterruptableAd false,
-        qt false,
-        type 0,
-        events false
+        inputState: PLUGIN_STATE.IDLE,
+        time: 0,
+        duration: 0,
+        progress: 0,
+        volume: 0,
+        muted: false,
+        version: VER_1_0_2,
+        stringVersion: "1.0.2",
+        countPlaylistItems: 0,
+        isAd: false,
+        isInterruptableAd: false,
+        qt: false,
+        type: 0,
+        events: false
     },
     
     bgProcessData = {
-        state BGP_STATE.CONNECTING
+        state: BGP_STATE.CONNECTING
     },
     
     timers = {
-        updateState null,
-        waitPrebuffering null,
-        iframeChild null,
-        preloadContent null,
-        loadData null
+        updateState: null,
+        waitPrebuffering: null,
+        iframeChild: null,
+        preloadContent: null,
+        loadData: null
     },
     
     _playlist = null;
     
-    
-     private functions
+    ////////////////////////////////////////////////////////////////////////////
+    // private functions
     function getVersion(stringVersion)
     {
-        var a = stringVersion.split(.);
+        var a = stringVersion.split(".");
         if(a.length != 3 && a.length != 4) {
-            throw Bad version  + stringVersion;
+            throw "Bad version: " + stringVersion;
         }
 
-        return (parseInt(a[0])  10000 + parseInt(a[1])  100 + parseInt(a[2]));
+        return (parseInt(a[0]) * 10000 + parseInt(a[1]) * 100 + parseInt(a[2]));
     }
     
     function embedPlugin(container, useInternalPlaylist, style, bgColor, fontColor, callback)
     {
-        _log(embedPlugin container= + container);
+        _log("embedPlugin: container=" + container);
 
-        var internalPlaylist = useInternalPlaylist  true  false,
+        var internalPlaylist = useInternalPlaylist ? "true" : "false",
             embed,
             document = container.ownerDocument;
         
-        if(_browser.name == ie) {
+        if(_browser.name == "ie") {
             
-             1 Torrent Stream P2P Multimedia Plug-in, FAA285EB-EB55-47ff-84FF-0993CA2A41B5
-             2 ACE Stream P2P Multimedia Plug-in, 79690976-ED6E-403c-BBBA-F8928B5EDE17
-             3 Torrent Stream P2P Multimedia Plug-in 2, 28E3B95D-371D-42d5-A276-8A3EE70100FD
+            // 1: Torrent Stream P2P Multimedia Plug-in, FAA285EB-EB55-47ff-84FF-0993CA2A41B5
+            // 2: ACE Stream P2P Multimedia Plug-in, 79690976-ED6E-403c-BBBA-F8928B5EDE17
+            // 3: Torrent Stream P2P Multimedia Plug-in 2, 28E3B95D-371D-42d5-A276-8A3EE70100FD
             
-            var html = , clsid;
+            var html = "", clsid;
             
             if(pluginData.type == 1) {
-                clsid = FAA285EB-EB55-47ff-84FF-0993CA2A41B5;
+                clsid = "FAA285EB-EB55-47ff-84FF-0993CA2A41B5";
             }
             else if(pluginData.type == 2) {
-                clsid = 79690976-ED6E-403c-BBBA-F8928B5EDE17;
+                clsid = "79690976-ED6E-403c-BBBA-F8928B5EDE17";
             }
             else if(pluginData.type == 3) {
-                clsid = 28E3B95D-371D-42d5-A276-8A3EE70100FD;
+                clsid = "28E3B95D-371D-42d5-A276-8A3EE70100FD";
             }
             else {
-                _log(embedPlugin unknown type  + pluginData.type);
+                _log("embedPlugin: unknown type: " + pluginData.type);
                 return false;
             }
             
-            html += 'object classid=clsid' + clsid + ' width=50% height=100%';
-            html += 'param name=autoplay value=0 ';
-            html += 'param name=loop value=0 ';
-            html += 'param name=bgcolor value=' + bgColor + ' ';
-            html += 'param name=video-bgcolor value=' + bgColor + ' ';
-            html += 'param name=fontcolor value=' + fontColor + ' ';
-            html += 'param name=internalplaylist value=' + internalPlaylist + ' ';
+            html += '<object classid="clsid:' + clsid + '" width="50%" height="100%">';
+            html += '<param name="autoplay" value="0" />';
+            html += '<param name="loop" value="0" />';
+            html += '<param name="bgcolor" value="' + bgColor + '" />';
+            html += '<param name="video-bgcolor" value="' + bgColor + '" />';
+            html += '<param name="fontcolor" value="' + fontColor + '" />';
+            html += '<param name="internalplaylist" value="' + internalPlaylist + '" />';
             
             if(pluginData.type == 1) {
-                html += 'param name=fullscreencontrols value=false ';
+                html += '<param name="fullscreencontrols" value="false" />';
             }
             else {
-                html += 'param name=fullscreencontrols value=true ';
-                html += 'param name=fscontrolsenable value=1 ';
+                html += '<param name="fullscreencontrols" value="true" />';
+                html += '<param name="fscontrolsenable" value="1" />';
                 if(conf.useInternalControls) {
-                    html += 'param name=nofscontrolsenable value=1 ';
+                    html += '<param name="nofscontrolsenable" value="1" />';
                 }
                 else {
-                    html += 'param name=nofscontrolsenable value=0 ';
+                    html += '<param name="nofscontrolsenable" value="0" />';
                 }
                 if(conf.liveStreamControls) {
-                    html += 'param name=defaultcontrolsforstream value=1 ';
+                    html += '<param name="defaultcontrolsforstream" value="1" />';
                 }
                 else {
-                    html += 'param name=defaultcontrolsforstream value=0 ';
+                    html += '<param name="defaultcontrolsforstream" value="0" />';
                 }
-                html += 'param name=fscontrols value=default ';
-                html += 'param name=nofscontrols value=default ';
-                html += 'param name=nofscontrolsheight value=36 ';
+                html += '<param name="fscontrols" value="default" />';
+                html += '<param name="nofscontrols" value="default" />';
+                html += '<param name="nofscontrolsheight" value="36" />';
             }
-            html += 'object';
+            html += '</object>';
             
             container.innerHTML = html;
             embed = container.firstChild;
         
-            embed.setAttribute(width, 100%);
-            embed.setAttribute(height, 100%);
-            embed.style.width = 100%;
-            embed.style.height = 100%;
+            embed.setAttribute("width", "100%");
+            embed.setAttribute("height", "100%");
+            embed.style.width = "100%";
+            embed.style.height = "100%";
         }
         else {
-             clear container
+            // clear container
             while(container.firstChild)
             {
                 container.removeChild(container.firstChild);
             }
             
-            embed = document.createElement(embed);
+            embed = document.createElement("embed");
             if(pluginData.qt) {
                 if(pluginData.type == 1) {
-                    embed.setAttribute(type, applicationx-tstream);
+                    embed.setAttribute("type", "application/x-tstream");
                 }
                 else if(pluginData.type == 2) {
-                    embed.setAttribute(type, applicationx-acestream-plugin);
+                    embed.setAttribute("type", "application/x-acestream-plugin");
                 }
                 else if(pluginData.type == 4) {
-                    embed.setAttribute(type, applicationx-tstream);
+                    embed.setAttribute("type", "application/x-tstream");
                 }
                 else if(pluginData.type == 3) {
-                    embed.setAttribute(type, applicationx-torrentstream-plugin);
+                    embed.setAttribute("type", "application/x-torrentstream-plugin");
                 }
                 else {
-                    _log(embedPlugin unknown type  + pluginData.type);
+                    _log("embedPlugin: unknown type: " + pluginData.type);
                     return false;
                 }
-                embed.setAttribute(width, 100%);
-                embed.setAttribute(height, 100%);
-                embed.setAttribute(bgcolor, bgColor);
-                embed.setAttribute(videobgcolor, bgColor);
-                embed.setAttribute(fontcolor, fontColor);
-                embed.setAttribute(fullscreencontrols, 1);
-                embed.setAttribute(fscontrolsenable, 1);
+                embed.setAttribute("width", "100%");
+                embed.setAttribute("height", "100%");
+                embed.setAttribute("bgcolor", bgColor);
+                embed.setAttribute("videobgcolor", bgColor);
+                embed.setAttribute("fontcolor", fontColor);
+                embed.setAttribute("fullscreencontrols", "1");
+                embed.setAttribute("fscontrolsenable", "1");
                 if(conf.useInternalControls) {
-                    embed.setAttribute(nofscontrolsenable, 1);
+                    embed.setAttribute("nofscontrolsenable", "1");
                 }
                 else {
-                    embed.setAttribute(nofscontrolsenable, 0);
+                    embed.setAttribute("nofscontrolsenable", "0");
                 }
                 if(conf.liveStreamControls) {
-                    embed.setAttribute(defaultcontrolsforstream, 1);
+                    embed.setAttribute("defaultcontrolsforstream", "1");
                 }
                 else {
-                    embed.setAttribute(defaultcontrolsforstream, 0);
+                    embed.setAttribute("defaultcontrolsforstream", "0");
                 }
-                embed.setAttribute(loopable, 0);
-                embed.setAttribute(fscontrols, default);
-                embed.setAttribute(nofscontrols, default);
-                embed.setAttribute(nofscontrolsheight, 36);
+                embed.setAttribute("loopable", "0");
+                embed.setAttribute("fscontrols", "default");
+                embed.setAttribute("nofscontrols", "default");
+                embed.setAttribute("nofscontrolsheight", "36");
             }
             else {
-                embed.setAttribute(type, applicationx-ts-stream);
-                embed.setAttribute(internalplaylist, internalPlaylist);
-                embed.setAttribute(loop, no);
-                embed.setAttribute(width, 100%);
-                embed.setAttribute(height, 100%);
-                embed.setAttribute(bgcolor, bgColor);
-                embed.setAttribute(video-bgcolor, bgColor);
-                embed.setAttribute(fontcolor, fontColor);
+                embed.setAttribute("type", "application/x-ts-stream");
+                embed.setAttribute("internalplaylist", internalPlaylist);
+                embed.setAttribute("autoplay", "no");
+                embed.setAttribute("loop", "no");
+                embed.setAttribute("width", "100%");
+                embed.setAttribute("height", "100%");
+                embed.setAttribute("bgcolor", bgColor);
+                embed.setAttribute("video-bgcolor", bgColor);
+                embed.setAttribute("fontcolor", fontColor);
             }
             
             if(style) {
-                embed.setAttribute(style, style);
+                embed.setAttribute("style", style);
             }
             
             container.appendChild(embed);
         }
         
         try {
-            embed.width = 100%;
-            embed.height = 100%;
+            embed.width = "100%";
+            embed.height = "100%";
         }
         catch(e) {
         }
 
-        embed.style.width = 100%;
-        embed.style.height = 100%;
+        embed.style.width = "100%";
+        embed.style.height = "100%";
         
         if(conf.firefoxUnwrapEmbedObjects) {
             try {
-                 works in FF = 3.6.2
+                // works in FF >= 3.6.2
                 embed = XPCNativeWrapper.unwrap(embed);
             }
             catch(e) {
@@ -543,41 +544,41 @@ TorrentStream.Player = function(container, conf)
                     embed = embed.wrappedJSObject;
                 }
                 catch(e) {
-                    _log(embedPlugin cannot unwrap plugin object  + e);
+                    _log("embedPlugin: cannot unwrap plugin object: " + e);
                 }
             }
         }
         
         var checkProp;
         if(pluginData.qt) {
-            checkProp = state;
+            checkProp = "state";
         }
         else {
-            checkProp = input;
+            checkProp = "input";
         }
-        _log(embedPlugin wrap= + conf.firefoxUnwrapEmbedObjects +  embed= + embed);
+        _log("embedPlugin: wrap=" + conf.firefoxUnwrapEmbedObjects + " embed=" + embed);
         
         if(typeof(embed[checkProp]) === 'undefined') {
             
-            if(typeof callback === function) {
-                 asynchronous embed
+            if(typeof callback === "function") {
+                // asynchronous embed
                 
                 function checkPlugin(retries) {
-                    _log(embedPluginasync retries= + retries +  embed[ + checkProp + ]= + typeof embed[checkProp]);
+                    _log("embedPlugin:async: retries=" + retries + " embed[" + checkProp + "]=" + typeof embed[checkProp]);
                     
                     if(typeof(embed[checkProp]) != 'undefined') {
-                         got plugin
+                        // got plugin
                         callback.call(self, embed);
                         return;
                     }
                     
-                    if(retries = 50) {
+                    if(retries <= 50) {
                         setTimeout(function() {
                                 checkPlugin(retries + 1);
                         }, 100);
                     }
                     else {
-                         out of tries, failed
+                        // out of tries, failed
                         callback.call(self, false);
                     }
                 }
@@ -585,13 +586,13 @@ TorrentStream.Player = function(container, conf)
                 checkPlugin(0);
             }
             
-            _log(embedPlugin failed to init typeof embed[ + checkProp + ]= + typeof embed[checkProp]);
-            _log(embedPlugin failed to init embed[ + checkProp + ]= + embed[checkProp]);
+            _log("embedPlugin: failed to init: typeof embed[" + checkProp + "]=" + typeof embed[checkProp]);
+            _log("embedPlugin: failed to init: embed[" + checkProp + "]=" + embed[checkProp]);
             
             return false;
         }
 		else {
-			if(typeof callback === function) {
+			if(typeof callback === "function") {
 				callback.call(self, embed);
 			}
 		}
@@ -607,15 +608,15 @@ TorrentStream.Player = function(container, conf)
         else {
             try {
                 if(pluginData.qt) {
-                    _log(authLevel  + content.auth);
-                    return content.auth  1  0;
+                    _log("authLevel: " + content.auth);
+                    return content.auth ? 1 : 0;
                 }
                 else {
                     return content.input.tsAuth;
                 }
             }
             catch(e) {
-                _log(tsAuth error  + e);
+                _log("tsAuth error: " + e);
                 return 0;
             }
         }
@@ -624,23 +625,23 @@ TorrentStream.Player = function(container, conf)
     function ts_info()
     {
         if(!content) {
-            return ;
+            return "";
         }
         
-        var info = ;
+        var info = "";
         try {
             if(pluginData.qt) {
                 info = content.status;
             }
             else if(pluginData.version == VER_1_0_2) {
-                info = content.input.p2pstatus  ;
+                info = content.input.p2pstatus || "";
             }
             else {
-                info = content.input.tsInfo  ;
+                info = content.input.tsInfo || "";
             }
         }
         catch(e){
-            _log(tsInfo error  + e);
+            _log("tsInfo error: " + e);
         }
         
         return info;
@@ -654,7 +655,7 @@ TorrentStream.Player = function(container, conf)
             return null;
         }
         
-        a = statusString.split();
+        a = statusString.split("|");
         if(a.length == 1) {
             main = a[0];
         }
@@ -666,39 +667,39 @@ TorrentStream.Player = function(container, conf)
             return null;
         }
         
-        if(main.substring(0, 5) !== main) {
+        if(main.substring(0, 5) !== "main:") {
             return null;
         }
         
         main = main.substring(5);
-        a = main.split(;);
+        a = main.split(";");
         status.status = a[0];
         
-        if(status.status === err) {
+        if(status.status === "err") {
             status.errorMessage = a[2];
         }
-        else if(status.status === check) {
+        else if(status.status === "check") {
             status.progress = a[1];
         }
-        else if(status.status === prebuf) {
-            status.progress = a[1];
-            status.time = a[2];
-            offset = 3;
-        }
-        else if(status.status === buf) {
+        else if(status.status === "prebuf") {
             status.progress = a[1];
             status.time = a[2];
             offset = 3;
         }
-        else if(status.status === wait) {
+        else if(status.status === "buf") {
+            status.progress = a[1];
+            status.time = a[2];
+            offset = 3;
+        }
+        else if(status.status === "wait") {
             status.time = a[1];
             offset = 2;
         }
-        else if(status.status === dl) {
+        else if(status.status === "dl") {
             offset = 1;
         }
         
-        if(status.status !== idle && status.status !== err && status.status !== check) {
+        if(status.status !== "idle" && status.status !== "err" && status.status !== "check") {
             try {
                 status.totalProgress = parseInt(a[offset]);
                 status.immediateProgress = parseInt(a[offset+1]);
@@ -711,12 +712,12 @@ TorrentStream.Player = function(container, conf)
                 status.httpDownloaded = parseInt(a[offset+8]);
                 status.uploaded = parseInt(a[offset+9]);
                 
-                if(a.length = offset+9) {
+                if(a.length >= offset+9) {
                     status.liveData = a[offset+10];
                 }
             }
             catch(e) {
-                _log(parseBgprocessStatusexc  + e);
+                _log("parseBgprocessStatus:exc: " + e);
             }
         }
         
@@ -734,47 +735,47 @@ TorrentStream.Player = function(container, conf)
             if(pluginData.qt) {
                 status = content.state;
             }
-            else if(pluginData.version  VER_1_0_2) {
-                status = content.input.tsStatus  0;
+            else if(pluginData.version > VER_1_0_2) {
+                status = content.input.tsStatus || 0;
             }
         }
         catch(e){
-            _log(ts_statusexc  + e);
+            _log("ts_status:exc: " + e);
         }
         
         return status;
-    } }}}
-    {{{ ts_error
+    } //}}}
+    //{{{ ts_error
     function ts_error()
     {
         if(!(content)) {
-            return ;
+            return "";
         }
         
-        var errmsg = ;
+        var errmsg = "";
         try {
             if(pluginData.qt) {
                 errmsg = content.error;
             }
-            else if(pluginData.version  VER_1_0_2) {
+            else if(pluginData.version > VER_1_0_2) {
                 errmsg = content.input.tsError;
             }
         }
         catch(e){}
         
         return errmsg;
-    } }}}
+    } //}}}
     
     function attachPluginEvents()
     {
         content.stateChanged = function(state) {
-            _log(eventstateChanged state= + state);
+            _log("event:stateChanged: state=" + state);
             var prevState = bgProcessData.state; 
             bgProcessData.state = state;
             
             if(status.mediaState == MEDIA_STATE.CONNECTING) {
                 if(bgProcessData.state != BGP_STATE.CONNECTING) {
-                    _log(eventstateChanged bg connected);
+                    _log("event:stateChanged: bg connected");
                     status.mediaState = MEDIA_STATE.IDLE;
                     onConnected();
                 }
@@ -783,7 +784,7 @@ TorrentStream.Player = function(container, conf)
             
             if(status.mediaState == MEDIA_STATE.LOADING) {
                 if(bgProcessData.state != BGP_STATE.LOADING) {
-                    _log(eventstateChanged playlist loaded);
+                    _log("event:stateChanged: playlist loaded");
                     status.mediaState = MEDIA_STATE.IDLE;
                     onPlaylistLoaded();
                 }
@@ -794,9 +795,9 @@ TorrentStream.Player = function(container, conf)
             if(state == BGP_STATE.IDLE) {
                 status.mediaState = MEDIA_STATE.IDLE;
                 if(prevState == BGP_STATE.HASHCHECKING
-                     prevState == BGP_STATE.PREBUFFERING
-                     prevState == BGP_STATE.BUFFERING
-                     prevState == BGP_STATE.DOWNLOADING
+                    || prevState == BGP_STATE.PREBUFFERING
+                    || prevState == BGP_STATE.BUFFERING
+                    || prevState == BGP_STATE.DOWNLOADING
                     ) {
                     onStop(true, self.playlistCurrentItem());
                     }
@@ -833,12 +834,12 @@ TorrentStream.Player = function(container, conf)
         };
         
         content.playlistChanged = function() {
-            _log(eventplaylistChanged current= + content.playlistCurrentItem +  count= + content.playlistCount);
+            _log("event:playlistChanged: current=" + content.playlistCurrentItem + " count=" + content.playlistCount);
             
             bgProcessData.state = content.state;
             if(status.mediaState == MEDIA_STATE.LOADING) {
                 if(bgProcessData.state != BGP_STATE.LOADING) {
-                    _log(eventplaylistChanged playlist loaded);
+                    _log("event:playlistChanged: playlist loaded");
                     status.mediaState = MEDIA_STATE.IDLE;
                     onPlaylistLoaded();
                 }
@@ -847,7 +848,7 @@ TorrentStream.Player = function(container, conf)
             
             var currentItem = content.playlistCurrentItem;
             if(currentItem != _lastStartedItem) {
-                _log(eventplaylistChanged changed item last= + _lastStartedItem +  curr= + currentItem);
+                _log("event:playlistChanged: changed item: last=" + _lastStartedItem + " curr=" + currentItem);
                 if(_lastStartedItem != -1) {
                     onStop(false, _lastStartedItem);
                     status.mediaState = MEDIA_STATE.STOPPED;
@@ -856,75 +857,75 @@ TorrentStream.Player = function(container, conf)
             }
         };
         
-        content.audioMuteChanged = function(boolmute) {
-            _log(eventaudioMuteChanged mute= + mute);
+        content.audioMuteChanged = function(/*bool*/mute) {
+            _log("event:audioMuteChanged: mute=" + mute);
             onMute(mute);
         };
         
-        content.audioVolumeChanged = function(intvolume) {
-            _log(eventaudioVolumeChanged volume= + volume);
-            volume = Math.round(volume  2);
+        content.audioVolumeChanged = function(/*int*/volume) {
+            _log("event:audioVolumeChanged: volume=" + volume);
+            volume = Math.round(volume / 2);
             onVolume(volume);
         };
         
-        content.audioTrackChanged = function(inttrack) {
-            _log(eventaudioTrackChanged ---);
+        content.audioTrackChanged = function(/*int*/track) {
+            _log("event:audioTrackChanged: ---");
         };
         
-        content.audioChannelChanged = function(intchannel) {
-            _log(eventaudioChannelChanged ---);
+        content.audioChannelChanged = function(/*int*/channel) {
+            _log("event:audioChannelChanged: ---");
         };
         
-        content.inputPositionChanged = function(doubleposition) {
-            _log(eventinputPositionChanged position= + position);
+        content.inputPositionChanged = function(/*double*/position) {
+            _log("event:inputPositionChanged: position=" + position);
             onProgress(position);
         };
         
-        content.inputTimeChanged = function(doubletime) {
-            _log(eventinputTimeChanged time= + time);
-            time = parseInt(time  1000);
+        content.inputTimeChanged = function(/*double*/time) {
+            _log("event:inputTimeChanged: time=" + time);
+            time = parseInt(time / 1000);
             onTime(time);
         };
         
-        content.inputRateChanged = function(doublerate) {
-            _log(eventinputRateChanged ---);
+        content.inputRateChanged = function(/*double*/rate) {
+            _log("event:inputRateChanged: ---");
         };
         
-        content.subtitleTrackChanged = function(inttrack) {
-            _log(eventsubtitleTrackChanged ---);
+        content.subtitleTrackChanged = function(/*int*/track) {
+            _log("event:subtitleTrackChanged: ---");
         };
         
-        content.videoFullscreenChanged = function(boolisfullscreen) {
-            _log(eventvideoFullscreenChanged ---);
+        content.videoFullscreenChanged = function(/*bool*/isfullscreen) {
+            _log("event:videoFullscreenChanged: ---");
         };
         
-        content.videoAspectRatioChanged = function(stringaspectRatio) {
-            _log(eventvideoAspectRatioChanged aspectRatio= + aspectRatio);
+        content.videoAspectRatioChanged = function(/*string*/aspectRatio) {
+            _log("event:videoAspectRatioChanged: aspectRatio=" + aspectRatio);
         };
         
-        content.videoCropChanged = function(stringcrop) {
-            _log(eventvideoCropChanged ---);
+        content.videoCropChanged = function(/*string*/crop) {
+            _log("event:videoCropChanged: ---");
         };
         
-        content.authChanged = function(boolauth) {
-            _log(eventauthChanged ---);
+        content.authChanged = function(/*bool*/auth) {
+            _log("event:authChanged: ---");
         };
         
-        content.infoChanged = function(stringunparsedinfo) {
-            _log(eventinfoChanged ---);
+        content.infoChanged = function(/*string*/unparsedinfo) {
+            _log("event:infoChanged: ---");
         };
         
-        content.errorChanged = function(stringerror) {
-            _log(eventerrorChanged error= + error);
+        content.errorChanged = function(/*string*/error) {
+            _log("event:errorChanged: error=" + error);
             onError(error);
         };
         
-        content.statusChanged = function(stringunparsedstatus) {
-            _log(eventstatusChanged ---);
+        content.statusChanged = function(/*string*/unparsedstatus) {
+            //_log("event:statusChanged: ---");
             try {
                 var bgprocessStatus = parseBgprocessStatus(unparsedstatus)
                 if(bgprocessStatus) {
-                    onEvent(onStatus, bgprocessStatus);
+                    onEvent("onStatus", bgprocessStatus);
                 }
             }
             catch(e) {
@@ -932,23 +933,23 @@ TorrentStream.Player = function(container, conf)
         };
         
         content.mediaPlayerMediaChanged = function() {
-            _log(eventmediaPlayerMediaChanged ---);
+            _log("event:mediaPlayerMediaChanged: ---");
         };
         
         content.mediaPlayerNothingSpecial = function() {
-            _log(eventmediaPlayerNothingSpecial ---);
+            _log("event:mediaPlayerNothingSpecial: ---");
         };
         
         content.mediaPlayerOpening = function() {
-            _log(eventmediaPlayerOpening ---);
+            _log("event:mediaPlayerOpening: ---");
         };
         
         content.mediaPlayerBuffering = function() {
-            _log(eventmediaPlayerBuffering ---);
+            _log("event:mediaPlayerBuffering: ---");
         };
         
         content.mediaPlayerPlaying = function() {
-            _log(eventmediaPlayerPlaying ---);
+            _log("event:mediaPlayerPlaying: ---");
             status.mediaState = MEDIA_STATE.PLAYING;
             var currentItem = self.playlistCurrentItem();
             if(triggers.mediaStarted) {
@@ -960,13 +961,13 @@ TorrentStream.Player = function(container, conf)
         };
         
         content.mediaPlayerPaused = function() {
-            _log(eventmediaPlayerPaused ---);
+            _log("event:mediaPlayerPaused: ---");
             status.mediaState = MEDIA_STATE.PAUSED;
             onPause(self.playlistCurrentItem());
         };
         
         content.mediaPlayerStopped = function() {
-            _log(eventmediaPlayerStopped ---);
+            _log("event:mediaPlayerStopped: ---");
             
             if(content.state == BGP_STATE.IDLE) {
                 status.mediaState = MEDIA_STATE.IDLE;
@@ -978,57 +979,57 @@ TorrentStream.Player = function(container, conf)
         };
         
         content.mediaPlayerForward = function() {
-            _log(eventmediaPlayerForward ---);
+            _log("event:mediaPlayerForward: ---");
         };
         
         content.mediaPlayerBackward = function() {
-            _log(eventmediaPlayerBackward ---);
+            _log("event:mediaPlayerBackward: ---");
         };
         
         content.mediaPlayerEndReached = function() {
-            _log(eventmediaPlayerEndReached ---);
+            _log("event:mediaPlayerEndReached: ---");
         };
         
         content.mediaPlayerEncounteredError = function() {
-            _log(eventmediaPlayerEncounteredError ---);
+            _log("event:mediaPlayerEncounteredError: ---");
         };
         
-        content.mediaPlayerTimeChanged = function(stringformattedTime) {
-            _log(eventmediaPlayerTimeChanged formattedTime= + formattedTime);
+        content.mediaPlayerTimeChanged = function(/*string*/formattedTime) {
+            //_log("event:mediaPlayerTimeChanged: formattedTime=" + formattedTime);
             onTime(formattedTime, true);
         };
         
-        content.mediaPlayerPositionChanged = function(doubleposition) {
-            _log(eventmediaPlayerPositionChanged position= + position);
+        content.mediaPlayerPositionChanged = function(/*double*/position) {
+            //_log("event:mediaPlayerPositionChanged: position=" + position);
             onProgress(position);
         };
         
         content.mediaPlayerSeekableChanged = function() {
-            _log(eventmediaPlayerSeekableChanged ---);
+            _log("event:mediaPlayerSeekableChanged: ---");
         };
         
         content.mediaPlayerPausableChanged = function() {
-            _log(eventmediaPlayerPausableChanged ---);
+            _log("event:mediaPlayerPausableChanged: ---");
         };
         
         content.mediaPlayerTitleChanged = function() {
-            _log(eventmediaPlayerTitleChanged ---);
+            _log("event:mediaPlayerTitleChanged: ---");
         };
         
         content.mediaPlayerSnapshotTaken = function() {
-            _log(eventmediaPlayerSnapshotTaken ---);
+            _log("event:mediaPlayerSnapshotTaken: ---");
         };
         
-        content.mediaPlayerLengthChanged = function(stringformatedlength) {
-            _log(eventmediaPlayerLengthChanged ---);
+        content.mediaPlayerLengthChanged = function(/*string*/formatedlength) {
+            _log("event:mediaPlayerLengthChanged: ---");
         };
         
-        content.errorMessage = function(stringmessage) {
-            _log(eventerrorMessage message= + message);
+        content.errorMessage = function(/*string*/message) {
+            _log("event:errorMessage: message=" + message);
         };
     }
     
-    {{{ updateState
+    //{{{ updateState
     function updateState()
     {
         if(!content) {
@@ -1039,21 +1040,21 @@ TorrentStream.Player = function(container, conf)
             updateBGProcessData();
         }
         catch(e) {
-            _log(updateState updateBGProcessData exc  + e);
+            _log("updateState: updateBGProcessData exc: " + e);
         }
         
         try {
             updatePluginData();
         }
         catch(e) {
-            _log(updateState updatePluginData exc  + e);
+            _log("updateState: updatePluginData exc: " + e);
         }
         
         try {
             updateMediaState();
         }
         catch(e) {
-            _log(updateState updateMediaState exc  + e);
+            _log("updateState: updateMediaState exc: " + e);
         }
         
         timers.updateState = setTimeout(updateState, 100);
@@ -1061,7 +1062,7 @@ TorrentStream.Player = function(container, conf)
     
     function updateBGProcessData()
     {
-        if(triggers.skipEngineStatus  0) {
+        if(triggers.skipEngineStatus > 0) {
             triggers.skipEngineStatus -= 1;
             return;
         }
@@ -1073,27 +1074,27 @@ TorrentStream.Player = function(container, conf)
         
         if(newState !== bgProcessData.state) {
             if(!conf.useInternalPlaylist && bgProcessData.state == BGP_STATE.PREBUFFERING && newState == BGP_STATE.DOWNLOADING) {
-                _log(updateBGProcessData unlock bgprocess state);
+                _log("updateBGProcessData: unlock bgprocess state");
                 triggers.lockBgProcessState = false;
             }
             
             if(!triggers.lockBgProcessState) {
-                _log(updateBGProcessData state change  + BGP_STATE_NAMES[bgProcessData.state] +  -  + BGP_STATE_NAMES[newState]);
+                _log("updateBGProcessData: state change: " + BGP_STATE_NAMES[bgProcessData.state] + " -> " + BGP_STATE_NAMES[newState]);
                 bgProcessData.state = newState;
             }
         }
         
         if(status.mediaState != MEDIA_STATE.IDLE && status.mediaState != MEDIA_STATE.STOPPED) {
-            if(_bgprocessStatusCounter = 10) {
+            if(_bgprocessStatusCounter >= 10) {
                 var bgprocessInfo = ts_info();
                 
-                if(pluginData.version  VER_1_0_5) {
-                    onMessage(message, bgprocessInfo);
+                if(pluginData.version < VER_1_0_5) {
+                    onMessage("message", bgprocessInfo);
                 }
                 else {
                     var bgprocessStatus = parseBgprocessStatus(bgprocessInfo)
                     if(bgprocessStatus) {
-                        onEvent(onStatus, bgprocessStatus);
+                        onEvent("onStatus", bgprocessStatus);
                     }
                 }
                 _bgprocessStatusCounter = 0;
@@ -1111,7 +1112,7 @@ TorrentStream.Player = function(container, conf)
             return;
         }
         
-         input.state
+        // input.state
         var newState;
         try {
             if(pluginData.qt) {
@@ -1126,31 +1127,31 @@ TorrentStream.Player = function(container, conf)
         }
         
         if(pluginData.inputState != newState) {
-            _log(updatePluginData state change  + PLUGIN_STATE_NAMES[pluginData.inputState] +  -  + PLUGIN_STATE_NAMES[newState] +  triggers.mediaStarted= + triggers.mediaStarted);
+            _log("updatePluginData: state change: " + PLUGIN_STATE_NAMES[pluginData.inputState] + " -> " + PLUGIN_STATE_NAMES[newState] + " triggers.mediaStarted=" + triggers.mediaStarted);
             pluginData.inputState = newState;
         }
         
-        
-        if(pluginData.version = VER_1_0_4) {
+        /*
+        if(pluginData.version >= VER_1_0_4) {
             try {
                 pluginData.isAd = content.input.isAd;
-                if(pluginData.version = VER_1_0_5) {
+                if(pluginData.version >= VER_1_0_5) {
                     pluginData.isInterruptableAd = content.input.isInterruptableAd;
                 }
             }
             catch(e) {}
         }
-        
+        */
         
         if( ! triggers.mediaStarted) {
             return;
         }
         
         if(pluginData.inputState == PLUGIN_STATE.PLAYING) {
-             media duration
-             Duration can be not available at start but it can appear
-             later (after vlc reads all neccessary data), so check it
-             periodically.
+            // media duration
+            // Duration can be not available at start but it can appear
+            // later (after vlc reads all neccessary data), so check it
+            // periodically.
             if(pluginData.duration == 0) {
                 try {
                     if(pluginData.qt) {
@@ -1160,14 +1161,14 @@ TorrentStream.Player = function(container, conf)
                         pluginData.duration = content.input.length;
                     }
                     if(pluginData.duration != 0) {
-                        _log(updatePluginData got duration  + pluginData.duration);
+                        _log("updatePluginData: got duration: " + pluginData.duration);
                         onDuration(pluginData.duration);
                     }
                 }
                 catch(e) {}
             }
             
-             playtime
+            // playtime
             try {
                 var time;
                 if(pluginData.qt) {
@@ -1177,7 +1178,7 @@ TorrentStream.Player = function(container, conf)
                     time = content.input.time;
                 }
                 
-                time = parseInt(time  1000);
+                time = parseInt(time / 1000);
                 if(time != pluginData.time) { 
                     pluginData.time = time;
                     onTime(pluginData.time);
@@ -1185,7 +1186,7 @@ TorrentStream.Player = function(container, conf)
             }
             catch(e) {}
             
-             position
+            // position
             try {
                 var position;
                 if(pluginData.qt) {
@@ -1203,7 +1204,7 @@ TorrentStream.Player = function(container, conf)
             catch(e) {}
         }
         
-         volume
+        // volume
         try {
             var newVolume;
             if(pluginData.qt) {
@@ -1213,8 +1214,8 @@ TorrentStream.Player = function(container, conf)
                 newVolume = content.audio.volume;
             }
             
-            if(pluginData.version  VER_2_0_10) {
-                newVolume = Math.round(newVolume  2);
+            if(pluginData.version < VER_2_0_10) {
+                newVolume = Math.round(newVolume / 2);
             }
             
             if(newVolume != pluginData.volume) {
@@ -1226,7 +1227,7 @@ TorrentStream.Player = function(container, conf)
             pluginData.volume = 0;
         }
         
-         muted
+        // muted
         try {
             var newMuted;
             if(pluginData.qt) {
@@ -1244,7 +1245,7 @@ TorrentStream.Player = function(container, conf)
         catch(e) {
         }
         
-    } }}}
+    } //}}}
     
     function updateMediaState()
     {
@@ -1252,7 +1253,7 @@ TorrentStream.Player = function(container, conf)
         
         if(status.mediaState == MEDIA_STATE.CONNECTING) {
             if(bgProcessData.state !== undefined && bgProcessData.state != BGP_STATE.CONNECTING) {
-                _log(updateMediaState bg connected);
+                _log("updateMediaState: bg connected");
                 status.mediaState = MEDIA_STATE.IDLE;
                 onConnected();
             }
@@ -1261,7 +1262,7 @@ TorrentStream.Player = function(container, conf)
         
         if(status.mediaState == MEDIA_STATE.LOADING) {
             if(bgProcessData.state != BGP_STATE.LOADING) {
-                _log(updateMediaState playlist loaded);
+                _log("updateMediaState: playlist loaded");
                 status.mediaState = MEDIA_STATE.IDLE;
                 onPlaylistLoaded();
             }
@@ -1288,18 +1289,18 @@ TorrentStream.Player = function(container, conf)
             state = MEDIA_STATE.ERROR;
         }
         else {
-             check plugin state
+            // check plugin state
             if(pluginData.inputState == PLUGIN_STATE.IDLE) {
                 if(bgProcessData.state == BGP_STATE.DOWNLOADING) {
-                     bgprocess finished prebuffering and sent PLAY to plugin
-                     but plugin haven't yet processed this command
+                    // bgprocess finished prebuffering and sent PLAY to plugin
+                    // but plugin haven't yet processed this command
                     state = MEDIA_STATE.PREBUFFERING;
                 }
                 else {
                     state = MEDIA_STATE.IDLE;
                 }
             }
-            else if(pluginData.inputState == PLUGIN_STATE.OPENING  pluginData.inputState == PLUGIN_STATE.BUFFERING) {
+            else if(pluginData.inputState == PLUGIN_STATE.OPENING || pluginData.inputState == PLUGIN_STATE.BUFFERING) {
                 state = MEDIA_STATE.BUFFERING;
             }
             else if(pluginData.inputState == PLUGIN_STATE.PLAYING) {
@@ -1308,7 +1309,7 @@ TorrentStream.Player = function(container, conf)
             else if(pluginData.inputState == PLUGIN_STATE.PAUSED) {
                 state = MEDIA_STATE.PAUSED;
             }
-            else if(pluginData.inputState == PLUGIN_STATE.STOPPING  pluginData.inputState == PLUGIN_STATE.STOPPED) {
+            else if(pluginData.inputState == PLUGIN_STATE.STOPPING || pluginData.inputState == PLUGIN_STATE.STOPPED) {
                 if(bgProcessData.state == BGP_STATE.IDLE) {
                     state = MEDIA_STATE.IDLE;
                 }
@@ -1322,7 +1323,7 @@ TorrentStream.Player = function(container, conf)
         }
         
         if(state == -1) {
-             cannot determine current media state, leave it untouched
+            // cannot determine current media state, leave it untouched
             return;
         }
         
@@ -1333,7 +1334,7 @@ TorrentStream.Player = function(container, conf)
         
         var currentItem = self.playlistCurrentItem();
         if(currentItem != _lastStartedItem) {
-            _log(updateMediaState changed item last= + _lastStartedItem +  curr= + currentItem);
+            _log("updateMediaState: changed item: last=" + _lastStartedItem + " curr=" + currentItem);
             if(_lastStartedItem != -1) {
                 onStop(false, _lastStartedItem);
                 status.mediaState = MEDIA_STATE.STOPPED;
@@ -1342,9 +1343,9 @@ TorrentStream.Player = function(container, conf)
         }
         
         if(state != status.mediaState) {
-            _log(updateMediaState  + MEDIA_STATE_NAMES[status.mediaState] +  -  + MEDIA_STATE_NAMES[state] +  plugin= + PLUGIN_STATE_NAMES[pluginData.inputState] +  bg= + BGP_STATE_NAMES[bgProcessData.state] +  curr= + currentItem);
+            _log("updateMediaState: " + MEDIA_STATE_NAMES[status.mediaState] + " -> " + MEDIA_STATE_NAMES[state] + " plugin=" + PLUGIN_STATE_NAMES[pluginData.inputState] + " bg=" + BGP_STATE_NAMES[bgProcessData.state] + " curr=" + currentItem);
             
-             generate pseudo-events
+            // generate pseudo-events
             if(state == MEDIA_STATE.PLAYING) {
                 if(triggers.mediaStarted) {
                     onResume(currentItem);
@@ -1354,24 +1355,24 @@ TorrentStream.Player = function(container, conf)
                 }
             }
             else if(state == MEDIA_STATE.PAUSED) {
-                if(status.mediaState == MEDIA_STATE.BUFFERING  status.mediaState == MEDIA_STATE.PLAYING) {
+                if(status.mediaState == MEDIA_STATE.BUFFERING || status.mediaState == MEDIA_STATE.PLAYING) {
                     onPause(currentItem);
                 }
                 else {
-                    _log(updateMediaState unknown state change  + status.mediaState +  -  + state);
+                    _log("updateMediaState: unknown state change: " + status.mediaState + " -> " + state);
                 }
             }
             else if(status.mediaState == MEDIA_STATE.IDLE && state == MEDIA_STATE.STOPPED) {
-                 plugin is stopped, bgprocess is idle (after fullstop), but the content is downloaded
-                 when restart playing after fullstop there won't be prebuffering (because content is downloaded)
+                // plugin is stopped, bgprocess is idle (after fullstop), but the content is downloaded
+                // when restart playing after fullstop there won't be prebuffering (because content is downloaded)
                 onPrebuffering(currentItem);
             }
-            else if(state == MEDIA_STATE.STOPPED  state == MEDIA_STATE.IDLE) {
+            else if(state == MEDIA_STATE.STOPPED || state == MEDIA_STATE.IDLE) {
                 if(status.mediaState == MEDIA_STATE.PREBUFFERING
-                     status.mediaState == MEDIA_STATE.BUFFERING
-                     status.mediaState == MEDIA_STATE.HASHCHECKING
-                     status.mediaState == MEDIA_STATE.PLAYING
-                     status.mediaState == MEDIA_STATE.PAUSED)
+                    || status.mediaState == MEDIA_STATE.BUFFERING
+                    || status.mediaState == MEDIA_STATE.HASHCHECKING
+                    || status.mediaState == MEDIA_STATE.PLAYING
+                    || status.mediaState == MEDIA_STATE.PAUSED)
                 {
                     onStop(state == MEDIA_STATE.IDLE, currentItem);
                 }
@@ -1379,7 +1380,7 @@ TorrentStream.Player = function(container, conf)
                     onStop(true, currentItem);
                 }
                 else {
-                    _log(updateMediaState unknown state change  + MEDIA_STATE_NAMES[status.mediaState] +  -  + MEDIA_STATE_NAMES[state]);
+                    _log("updateMediaState: unknown state change: " + MEDIA_STATE_NAMES[status.mediaState] + " -> " + MEDIA_STATE_NAMES[state]);
                 }
             }
             else if(state == MEDIA_STATE.PREBUFFERING) {
@@ -1400,14 +1401,14 @@ TorrentStream.Player = function(container, conf)
     }
     
     function onConnected() {
-        _log(onConnected);
+        _log("onConnected");
         if(typeof conf.onLoad === 'function') {
             conf.onLoad.call(self);
         }
     }
     
     function onPluginError(error) {
-        _log(onPluginError);
+        _log("onPluginError");
         if(typeof conf.onError === 'function') {
             conf.onError.call(self, error);
         }
@@ -1420,7 +1421,7 @@ TorrentStream.Player = function(container, conf)
     {
         try {
             if(content && content.input) {
-                _log(length= + content.input.length);
+                _log("length=" + content.input.length);
                 if(content.input.length != -1) {
                     return true;
                 }
@@ -1433,14 +1434,14 @@ TorrentStream.Player = function(container, conf)
     
     function waitPrebuffering()
     {
-        if(content.playlist.items.count  0) {
-            _log(waitPrebuffering ready to play);
-            _log(waitPrebuffering items_count= + content.playlist.items.count);
+        if(content.playlist.items.count > 0) {
+            _log("waitPrebuffering: ready to play");
+            _log("waitPrebuffering: items_count=" + content.playlist.items.count);
             pluginData.countPlaylistItems = content.playlist.items.count;
             content.playlist.play();
             triggers.skipMediaState = false;
             content.audio.mute = pluginData.muted;
-            _log(waitPrebuffering mute= + content.audio.mute);
+            _log("waitPrebuffering: mute=" + content.audio.mute);
             timers.waitPrebuffering = null;
         }
         else {
@@ -1452,14 +1453,14 @@ TorrentStream.Player = function(container, conf)
     {
         try {
             var args = Array.prototype.slice.call(arguments, 1);
-            for(var i = 0; i  eventHandlers.length; i++) {
+            for(var i = 0; i < eventHandlers.length; i++) {
                 if(typeof eventHandlers[i][event] === 'function') {
                     eventHandlers[i][event].apply(self, args);
                 }
             }
         }
         catch(e) {
-            _log(onEventexc event= + event +  err= + e);
+            _log("onEvent:exc: event=" + event + " err=" + e);
         }
     }
     
@@ -1469,78 +1470,78 @@ TorrentStream.Player = function(container, conf)
             return;
         }
         
-        if(type === message && (new RegExp('^error', 'i')).test(msg)) {
-            type = error;
+        if(type === "message" && (new RegExp('^error', 'i')).test(msg)) {
+            type = "error";
         }
         
-        if(type === alert  type !== _lastMessageType  msg !== _lastMessage) {
+        if(type === "alert" || type !== _lastMessageType || msg !== _lastMessage) {
             _lastMessageType = type;
             _lastMessage = msg;
-            onEvent(onMessage, type, msg);
+            onEvent("onMessage", type, msg);
         }
     }
     
     function onError(msg) {
         if(msg) {
-            onMessage(error, msg);
+            onMessage("error", msg);
         }
     }
     
     function onSystemMessage(msg) {
-        onEvent(onSystemMessage, msg);
+        onEvent("onSystemMessage", msg);
     }
     
     function onTime(time, formatted) {
-        onEvent(onTime, self.playlistCurrentItem(), time, formatted);
+        onEvent("onTime", self.playlistCurrentItem(), time, formatted);
     }
     
     function onProgress(progress) {
-        onEvent(onProgress, self.playlistCurrentItem(), progress);
+        onEvent("onProgress", self.playlistCurrentItem(), progress);
     }
     
     function onDuration(duration) {
-        onEvent(onDuration, self.playlistCurrentItem(), duration);
+        onEvent("onDuration", self.playlistCurrentItem(), duration);
     }
     
     function onPrebuffering(index)
     {
-        onEvent(onPrebuffering, index);
+        onEvent("onPrebuffering", index);
     }
     
     function onBuffering(index)
     {
-        onEvent(onBuffering, index);
+        onEvent("onBuffering", index);
     }
     
     function onChecking(index)
     {
-        onEvent(onChecking, index);
+        onEvent("onChecking", index);
     }
     
     function onStart(index) {
-        _log(onStart index= + index);
+        _log("onStart: index=" + index);
         
-         now media data is available and can be read
+        // now media data is available and can be read
         loadMediaData();
         
-        if(pluginData.version  VER_1_0_5) {
-             restore media params from previous playlist item
+        if(pluginData.version < VER_1_0_5) {
+            // restore media params from previous playlist item
             restoreMediaParams();
         }
         
-         mark content as started
+        // mark content as started
         triggers.mediaStarted = true;
-        _log(onStart duration= + pluginData.duration);
+        _log("onStart: duration=" + pluginData.duration);
         
-        onEvent(onStart, index);
+        onEvent("onStart", index);
     }
     
     function onPause(index) {
-        onEvent(onPause, index);
+        onEvent("onPause", index);
     }
     
     function onResume(index) {
-        onEvent(onResume, index);
+        onEvent("onResume", index);
     }
     
     function onStop(fullstop, index) {
@@ -1559,7 +1560,7 @@ TorrentStream.Player = function(container, conf)
         }
         catch(e) {
         }
-        _log(onStop index= + index +  fullstop= + fullstop +  stopClicked= + triggers.stopClicked +  currentProgress= + currentProgress +  lastProgress= + lastProgress);
+        _log("onStop: index=" + index + " fullstop=" + fullstop + " stopClicked=" + triggers.stopClicked + " currentProgress=" + currentProgress + " lastProgress=" + lastProgress);
         
         if(index === undefined) {
             index = self.playlistCurrentItem();
@@ -1567,25 +1568,25 @@ TorrentStream.Player = function(container, conf)
         
         if(triggers.mediaStarted) {
             if(!conf.useInternalPlaylist) {
-                 Reset aspectRation and crop to defaults on stop,
-                 otherwise plugin hangs when start playing next item
-                 Only parameters with string values affect this (audio
-                 channel can be changed as well).
+                // Reset aspectRation and crop to defaults on stop,
+                // otherwise plugin hangs when start playing next item
+                // Only parameters with string values affect this (audio
+                // channel can be changed as well).
                 try {
-                    content.video.aspectRatio = ;
-                    content.video.crop = ;
+                    content.video.aspectRatio = "";
+                    content.video.crop = "";
                 }
                 catch(e) {
-                    _log(onStop reset media params  + e);
+                    _log("onStop: reset media params: " + e);
                 }
             }
             
-             reset subtitles
+            // reset subtitles
             status.video.subtitle.current = -1;
             status.video.subtitle.values = [];
             status.video.subtitle.count = -1;
             
-             reset audio track
+            // reset audio track
             status.audio.track.current = -1;
             status.audio.track.values = [];
             status.audio.track.count = -1;
@@ -1594,7 +1595,7 @@ TorrentStream.Player = function(container, conf)
         }
         
         if(!conf.useInternalPlaylist) {
-            status.mediaState = fullstop  MEDIA_STATE.IDLE  MEDIA_STATE.STOPPED;
+            status.mediaState = fullstop ? MEDIA_STATE.IDLE : MEDIA_STATE.STOPPED;
         }
         
         pluginData.duration = 0;
@@ -1605,12 +1606,12 @@ TorrentStream.Player = function(container, conf)
         _lastMessageType = null;
         _lastMessage = null;
         
-         send event
-        onEvent(onStop, index, fullstop);
+        // send event
+        onEvent("onStop", index, fullstop);
         
         if(!conf.useInternalPlaylist) {
             if( ! triggers.stopClicked) {
-                 content finished playing
+                // content finished playing
                 onCompleted();
             }
             else {
@@ -1624,66 +1625,66 @@ TorrentStream.Player = function(container, conf)
             }
         }
         else if(conf.sendOnCompleted) {
-            if(!fullstop && (currentProgress = 0.97)) {
-                onEvent(onCompleted, index);
+            if(!fullstop && (currentProgress >= 0.97)) {
+                onEvent("onCompleted", index);
             }
         }
     }
     
     function onCompleted()
     {
-        _log(onCompleted);
+        _log("onCompleted");
         
         if(conf.useInternalPlaylist) {
-            throw Deprecated from v1.0.5;
+            throw "Deprecated from v1.0.5";
         }
         
         if(_pluginIsAd()) {
-            _log(onCompleted ad completed, do nothing);
+            _log("onCompleted: ad completed, do nothing");
             return;
         }
         
         var next = self.playlistCurrentItem() + 1;
-        if(next = self.playlistSize()) {
-            _log(onCompleted no next item);
+        if(next >= self.playlistSize()) {
+            _log("onCompleted: no next item");
             
             try {
                 if(content.video.fullscreen) {
                     content.video.fullscreen = false;
                 }
-                if(pluginData.version  VER_1_0_3) {
+                if(pluginData.version > VER_1_0_3) {
                     setTimeout(function() {
                             content.playlist.stop();
                     }, 1000);
                 }
             }
             catch(e) {
-                _log(onCompleted  + e);
+                _log("onCompleted: " + e);
             }
             
             return;
         }
         
-        _log(onCompleted go to next item  + next);
+        _log("onCompleted: go to next item: " + next);
         _play(next, {}, true);
     }
     
     function onVolume(newVolume)
     {
         newVolume = Math.round(newVolume);
-        onEvent(onVolume, newVolume);
+        onEvent("onVolume", newVolume);
     }
     
     function onMute(muted)
     {
-        onEvent(onMute, muted);
+        onEvent("onMute", muted);
     }
     
     function loadMediaData()
     {
         var i;
         
-         subtitle
+        // subtitle
         status.video.subtitle.current = -1;
         status.video.subtitle.values = [];
         status.video.subtitle.count = -1;
@@ -1702,14 +1703,14 @@ TorrentStream.Player = function(container, conf)
             }
         }
         catch(e) {
-            _log(loadMediaData get subtitles  + e);
+            _log("loadMediaData: get subtitles: " + e);
         }
-        _log(loadMediaData subtitle current  + status.video.subtitle.current);
-        _log(loadMediaData subtitle count  + status.video.subtitle.count);
+        _log("loadMediaData: subtitle current " + status.video.subtitle.current);
+        _log("loadMediaData: subtitle count " + status.video.subtitle.count);
         
-        if(status.video.subtitle.current != -1 && status.video.subtitle.count  0) {
+        if(status.video.subtitle.current != -1 && status.video.subtitle.count > 0) {
             var desc;
-            for(i = 0; i  status.video.subtitle.count; i++) {
+            for(i = 0; i < status.video.subtitle.count; i++) {
                 if(pluginData.qt) {
                     desc = content.subtitleDescription(i);
                 }
@@ -1720,7 +1721,7 @@ TorrentStream.Player = function(container, conf)
             }
         }
         
-         audio track
+        // audio track
         status.audio.track.current = -1;
         status.audio.track.values = [];
         status.audio.track.count = -1;
@@ -1737,14 +1738,14 @@ TorrentStream.Player = function(container, conf)
             }
         }
         catch(e) {
-            _log(loadMediaData get audio track  + e);
+            _log("loadMediaData: get audio track: " + e);
         }
-        _log(loadMediaData audio track current  + status.audio.track.current);
-        _log(loadMediaData audio track count  + status.audio.track.count);
+        _log("loadMediaData: audio track current " + status.audio.track.current);
+        _log("loadMediaData: audio track count " + status.audio.track.count);
         
-        if(status.audio.track.current != -1 && status.audio.track.count  0) {
+        if(status.audio.track.current != -1 && status.audio.track.count > 0) {
             var desc;
-            for(i = 0; i  status.audio.track.count; i++) {
+            for(i = 0; i < status.audio.track.count; i++) {
                 if(pluginData.qt) {
                     desc = content.audioDescription(i);
                 }
@@ -1759,11 +1760,11 @@ TorrentStream.Player = function(container, conf)
     function restoreMediaParams()
     {
         if(conf.useInternalPlaylist) {
-            throw Deprecated from v1.0.5;
+            throw "Deprecated from v1.0.5";
         }
         
-        _log(restoreMediaParams aspectRatio= + status.video.aspect_ratio.values[status.video.aspect_ratio.current]);
-        _log(restoreMediaParams crop= + status.video.crop.values[status.video.crop.current]);
+        _log("restoreMediaParams: aspectRatio=" + status.video.aspect_ratio.values[status.video.aspect_ratio.current]);
+        _log("restoreMediaParams: crop=" + status.video.crop.values[status.video.crop.current]);
         self.aspectRatio(status.video.aspect_ratio.current);
         self.crop(status.video.crop.current);
     }
@@ -1772,13 +1773,13 @@ TorrentStream.Player = function(container, conf)
     {
         if(!conf.useInternalPlaylist) {
             
-             reset
+            // reset
             _playlist.data = {};
             _playlist.items = [];
             _playlist.currentItem = -1;
             
             var i = 0, tmp = [];
-            for(i = 0; i  files.length; i++) {
+            for(i = 0; i < files.length; i++) {
                 if(typeof(files[i]) == 'string') {
                     fileindex = i;
                     filename = files[i];
@@ -1788,15 +1789,15 @@ TorrentStream.Player = function(container, conf)
                     fileindex = files[i][1];
                 }
                 tmp.push({
-                        index fileindex,
-                        name filename
+                        index: fileindex,
+                        name: filename
                 });
                 _playlist.data[fileindex] = filename;
             }
             
-             sort
+            // sort
             tmp.sort(function(a, b) {
-                    if(a.file  b.file) {
+                    if(a.file < b.file) {
                         return -1;
                     }
                     else if(a.file == b.file) {
@@ -1807,29 +1808,29 @@ TorrentStream.Player = function(container, conf)
                     }
             });
             
-             sorted array of filenames
+            // sorted array of filenames
             files = [];
-            for(i = 0; i  tmp.length; i++) {
+            for(i = 0; i < tmp.length; i++) {
                 files.push(tmp[i].name);
                 _playlist.items.push({
-                        index tmp[i].index,
-                        enabled true
+                        index: tmp[i].index,
+                        enabled: true
                 });
             }
         }
         
-        onEvent(onPlaylist, files);
+        onEvent("onPlaylist", files);
     }
     
     function _checkPlugin() {
         if(pluginData.qt) {
-            if(!content  typeof content.state === 'undefined') {
-                throw plugin is not initialised;
+            if(!content || typeof content.state === 'undefined') {
+                throw "plugin is not initialised";
             }
         }
         else {
-            if(!content  !content.input  !content.playlist) {
-                throw plugin is not initialised;
+            if(!content || !content.input || !content.playlist) {
+                throw "plugin is not initialised";
             }
         }
     }
@@ -1844,37 +1845,37 @@ TorrentStream.Player = function(container, conf)
         _mediaData = null;
         
         if(!content) {
-            throw Cannot embed plugin;
+            throw "Cannot embed plugin";
         }
         
         if(typeof(mediaData) !== 'object') {
-            throw loadPlaylist mediaData is not an object;
+            throw "loadPlaylist: mediaData is not an object";
         }
         
         if(mediaData.type === undefined) {
-            throw loadPlaylist missing mediaData.type;
+            throw "loadPlaylist: missing mediaData.type";
         }
         if(mediaData.id === undefined) {
-            throw loadPlaylist missing mediaData.id;
+            throw "loadPlaylist: missing mediaData.id";
         }
         
         var defaultSettings = {
-            developerId 0,
-            affiliateId 0,
-            zoneId 0,
-            autoplay true,
-            name null,
-            identityUrl null,
-            async true,
-            clearPlaylist false
+            developerId: 0,
+            affiliateId: 0,
+            zoneId: 0,
+            autoplay: false,
+            name: null,
+            identityUrl: null,
+            async: true,
+            clearPlaylist: false
         }
         mediaData = TorrentStream.Utils.extend(defaultSettings, mediaData);
         
-        if(pluginData.version  VER_1_0_5  !conf.useInternalPlaylist  mediaData.type == MEDIA_TYPE.DIRECT_URL) {
+        if(pluginData.version < VER_1_0_5 || !conf.useInternalPlaylist || mediaData.type == MEDIA_TYPE.DIRECT_URL) {
             mediaData.async = false;
         }
         
-        _log(loadPlaylist type= + mediaData.type +  id= + mediaData.id +  autoplay= + mediaData.autoplay +  name= + mediaData.name +  async= + mediaData.async);
+        _log("loadPlaylist: type=" + mediaData.type + " id=" + mediaData.id + " autoplay=" + mediaData.autoplay + " name=" + mediaData.name + " async=" + mediaData.async);
         
         try {
             var playlistData, loadResponse;
@@ -1943,8 +1944,8 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 else {
-                    if(pluginData.version  VER_1_0_5) {
-                        loadResponse = content.playlist.load('httpstorage.torrentstream.netget' + mediaData.id);
+                    if(pluginData.version < VER_1_0_5) {
+                        loadResponse = content.playlist.load('http://storage.torrentstream.net/get/' + mediaData.id);
                     }
                     else {
                         if(mediaData.async) {
@@ -1957,7 +1958,7 @@ TorrentStream.Player = function(container, conf)
                 }
             }
             else if(mediaData.type == MEDIA_TYPE.DIRECT_URL) {
-                var name = mediaData.name  ;
+                var name = mediaData.name || "";
                 
                 if(pluginData.qt) {
                     if(mediaData.clearPlaylist) {
@@ -1973,22 +1974,22 @@ TorrentStream.Player = function(container, conf)
                     name = mediaData.id;
                 }
                 playlistData = {
-                    files [name]
+                    files: [name]
                 }
             }
             else {
-                throw loadPlaylist unknown media type  + mediaData.type;
+                throw "loadPlaylist: unknown media type: " + mediaData.type;
             }
             
             if(!conf.useInternalPlaylist) {
-                 playlist is managed in javascript
+                // playlist is managed in javascript
                 if(!playlistData) {
-                    if(pluginData.version  VER_1_0_4) {
-                        loadResponse = loadResponse.replace(g, );
+                    if(pluginData.version < VER_1_0_4) {
+                        loadResponse = loadResponse.replace(/\\/g, "\\\\");
                     }
-                    _log(loadPlaylist loadResponse= + loadResponse);
+                    _log("loadPlaylist: loadResponse=" + loadResponse);
                     playlistData = TorrentStream.Utils.JSON.parse(loadResponse);
-                    _log(loadPlaylist playlistData= + playlistData);
+                    _log("loadPlaylist: playlistData=" + playlistData);
                 }
             }
             
@@ -2009,13 +2010,13 @@ TorrentStream.Player = function(container, conf)
         catch(e) {
             var failed = true;
             
-            _log(loadPlaylist cannot load content files  + e + , autoRetry= + conf.autoRetry +  countRetry= + conf.countRetry);
+            _log("loadPlaylist: cannot load content files: " + e + ", autoRetry=" + conf.autoRetry + " countRetry=" + conf.countRetry);
             if(conf.autoRetry) {
                 if(conf.countRetry === undefined) {
                     conf.countRetry = 0;
                 }
-                if(conf.countRetry  5) {
-                     don't show error, try again
+                if(conf.countRetry < 5) {
+                    // don't show error, try again
                     failed = false;
                     timers.loadData = setTimeout(function() {
                             mediaData.countRetry += 1; 
@@ -2023,7 +2024,7 @@ TorrentStream.Player = function(container, conf)
                     }, 2500);
                 }
                 else {
-                    _log(loadPlaylist giving up);
+                    _log("loadPlaylist: giving up");
                 }
             }
             
@@ -2031,7 +2032,7 @@ TorrentStream.Player = function(container, conf)
                 if(status.mediaState == MEDIA_STATE.LOADING) {
                     status.mediaState = MEDIA_STATE.ERROR;
                 }
-                onMessage(error, cannotLoadPlaylist);
+                onMessage("error", "cannotLoadPlaylist");
             }
             
             return false;
@@ -2041,7 +2042,7 @@ TorrentStream.Player = function(container, conf)
     function onPlaylistLoaded(playlistData) {
         
         if(!_lastMediaData) {
-            throw _lastMediaData is not initialised;
+            throw "_lastMediaData is not initialised";
         }
         
         var files, infohash;
@@ -2057,10 +2058,10 @@ TorrentStream.Player = function(container, conf)
                 files = [];
                 itemCount = self.playlistSize();
                 
-                for(i = 0; i  itemCount; i++) {
+                for(i = 0; i < itemCount; i++) {
                     if(i == 0) {
                         try {
-                             this method raises an exception when infohash is empty
+                            // this method raises an exception when infohash is empty
                             if(pluginData.qt) {
                                 infohash = content.playlistItemInfohash(i);
                             }
@@ -2082,10 +2083,10 @@ TorrentStream.Player = function(container, conf)
                     
                     files.push(itemName);
                 }
-                _log(onPlaylistLoaded files= + ( + files).replace(new RegExp(,, g), , ));
+                _log("onPlaylistLoaded: files=" + ("" + files).replace(new RegExp(",", "g"), ", "));
             }
             catch(e) {
-                _log(onPlaylistLoaded exc  + e);
+                _log("onPlaylistLoaded: exc: " + e);
             }
         }
         
@@ -2095,49 +2096,49 @@ TorrentStream.Player = function(container, conf)
         else {
             _lastMediaData.infohash = null;
         }
-        _log(onPlaylistLoaded infohash= + _lastMediaData.infohash);
+        _log("onPlaylistLoaded: infohash=" + _lastMediaData.infohash);
         
         if(files && files.length) {
             try {
                 onPlaylist(files);
             }
             catch(e) {
-                _log(onPlaylistLoaded exc in onPlaylist()  + e);
+                _log("onPlaylistLoaded: exc in onPlaylist(): " + e);
             }
             
             onMediaLoaded(_lastMediaData);
         }
         else {
-            onMessage(error, noVideoFiles);
+            onMessage("error", "noVideoFiles");
         }
     }
     
     function preloadContent(index)
     {
         if(conf.useInternalPlaylist) {
-            throw preloadContent() is deprecated from 1.0.5;
+            throw "preloadContent() is deprecated from 1.0.5";
         }
         
-        _log(preloadContent index= + index);
+        _log("preloadContent: index=" + index);
         onPrebuffering(index);
         triggers.lockBgProcessState = true;
         bgProcessData.state = BGP_STATE.PREBUFFERING;
         status.mediaState = MEDIA_STATE.PREBUFFERING;
         
         if(content.playlist.items.count) {
-            _log(preloadContent clear current playlist);
+            _log("preloadContent: clear current playlist");
             content.playlist.clear();
         }
         
-        _log(preloadContent index= + index);
+        _log("preloadContent: index=" + index);
         var i, a = [];
-        for(i = index; i  self.playlistSize(); i++) {
+        for(i = index; i < self.playlistSize(); i++) {
             if(_playlist.items[i].enabled) {
                 a.push(_playlist.items[i].index);
             }
         }
-        _log(preloadContent start  + a);
-        var indexes = a.join(,);
+        _log("preloadContent: start: " + a);
+        var indexes = a.join(",");
         
         if(timers.preloadContent) {
             clearTimeout(timers.preloadContent);
@@ -2157,8 +2158,8 @@ TorrentStream.Player = function(container, conf)
                     content.playlist.start_infohash(_mediaData.id, indexes, _mediaData.developerId, _mediaData.affiliateId, _mediaData.zoneId);
                 }
                 else if(_mediaData.type == MEDIA_TYPE.PLAYER_ID) {
-                    if(pluginData.version  VER_1_0_5) {
-                        content.playlist.start('httpstorage.torrentstream.netget' + _mediaData.id, indexes);
+                    if(pluginData.version < VER_1_0_5) {
+                        content.playlist.start('http://storage.torrentstream.net/get/' + _mediaData.id, indexes);
                     }
                     else {
                         content.playlist.start_player(_mediaData.id, indexes, _mediaData.developerId, _mediaData.affiliateId, _mediaData.zoneId);
@@ -2166,7 +2167,7 @@ TorrentStream.Player = function(container, conf)
                 }
                 else {
                 }
-                _log( start preloading);
+                _log(">>>>> start preloading");
         }, 500);
         
         return true;
@@ -2175,9 +2176,9 @@ TorrentStream.Player = function(container, conf)
     function _play(index, playConf, oncompleted)
     {
         if(!_mediaData) {
-            onMessage(alert, mediaNotLoaded);
-             start playing when media is loaded
-            _log(_play no media data, force autoplay);
+            //onMessage("alert", "mediaNotLoaded");
+            // start playing when media is loaded
+            _log("_play: no media data, force autoplay");
             _forceAutoplay = true;
             return;
         }
@@ -2186,13 +2187,13 @@ TorrentStream.Player = function(container, conf)
             playlistSize = self.playlistSize();
         
         var defaultPlayConf = {
-            position 0,
-            reset true,
-            forcePlay true
+            position: 0,
+            reset: true,
+            forcePlay: false
         };
         playConf = TorrentStream.Utils.extend(defaultPlayConf, playConf);
         
-        _log(_play index= + index +  current= + currentItem +  playlistSize= + playlistSize +  force= + playConf.forcePlay +  pos= + playConf.position +  reset= + playConf.reset);
+        _log("_play: index=" + index + " current=" + currentItem + " playlistSize=" + playlistSize + " force=" + playConf.forcePlay + " pos=" + playConf.position + " reset=" + playConf.reset);
         if(index === undefined) {
             index = currentItem;
         }
@@ -2208,20 +2209,20 @@ TorrentStream.Player = function(container, conf)
             }
         }
         
-        if(index  0) {
+        if(index < 0) {
             index = 0;
         }
-        else if(index = playlistSize) {
+        else if(index >= playlistSize) {
             index = playlistSize - 1;
         }
         
-        if(status.mediaState == MEDIA_STATE.IDLE  status.mediaState == MEDIA_STATE.ERROR) {
+        if(status.mediaState == MEDIA_STATE.IDLE || status.mediaState == MEDIA_STATE.ERROR) {
             currentItem = -1;
-            _log(_play set playingIndex to -1, media state is idle);
+            _log("_play: set playingIndex to -1, media state is idle");
         }
         
         if(index == currentItem && !playConf.forcePlay) {
-             playstop current item
+            // play/stop current item
             if(status.mediaState == MEDIA_STATE.STOPPED) {
                 if(!conf.useInternalPlaylist) {
                     status.mediaState = MEDIA_STATE.PREBUFFERING;
@@ -2236,7 +2237,7 @@ TorrentStream.Player = function(container, conf)
                     content.playlist.play();
                 }
             }
-            else if(status.mediaState == MEDIA_STATE.PLAYING  status.mediaState == MEDIA_STATE.PAUSED) {
+            else if(status.mediaState == MEDIA_STATE.PLAYING || status.mediaState == MEDIA_STATE.PAUSED) {
                 if(pluginData.qt) {
                     content.playlistTogglePause();
                 }
@@ -2245,25 +2246,25 @@ TorrentStream.Player = function(container, conf)
                 }
             }
             else {
-                 do nothing
-                _log(_play do nothing, mediaState= + status.mediaState);
-                onMessage(alert, cannotPauseOnBuffering);
+                // do nothing
+                _log("_play: do nothing, mediaState=" + status.mediaState);
+                onMessage("alert", "cannotPauseOnBuffering");
             }
         }
         else {
-             switch to new item
+            // switch to new item
             if(!conf.useInternalPlaylist) {
-                if(!oncompleted  pluginData.version == VER_1_0_3) {
-                    _log(_play stop current playing item);
+                if(!oncompleted || pluginData.version == VER_1_0_3) {
+                    _log("_play: stop current playing item");
                     stopContent();
                 }
                 _playlist.currentItem = index;
             }
             
-            _log(_play torrent switch to item  + index);
+            _log("_play: torrent: switch to item " + index);
             
             if(conf.useInternalPlaylist) {
-                _log(_playplayItem index= + index +  pos= + playConf.position +  stopCurrent= + playConf.reset);
+                _log("_play:playItem: index=" + index + " pos=" + playConf.position + " stopCurrent=" + playConf.reset);
                 var pos;
                 if(pluginData.qt) {
                     pos = playConf.position;
@@ -2287,10 +2288,10 @@ TorrentStream.Player = function(container, conf)
     function stopContent(fullstop)
     {
         fullstop = !!fullstop;
-        _log(stopContent fullstop= + fullstop);
+        _log("stopContent: fullstop=" + fullstop);
         
         if(timers.loadData) {
-            _log(stopContent stop loadData timer);
+            _log("stopContent: stop loadData timer");
             clearTimeout(timers.loadData);
             timers.loadData = null;
         }
@@ -2306,7 +2307,7 @@ TorrentStream.Player = function(container, conf)
         else {
             triggers.skipMediaState = true;
             if(timers.waitPrebuffering) {
-                _log(stopContent stop waitPrebuffering timer);
+                _log("stopContent: stop waitPrebuffering timer");
                 clearTimeout(timers.waitPrebuffering);
                 timers.waitPrebuffering = null;
             }
@@ -2341,20 +2342,20 @@ TorrentStream.Player = function(container, conf)
             }
             
             if(state === undefined) {
-                 toogle pause
+                // toogle pause
                 _pluginTogglePause();
             }
             else if(state === true && inputState == PLUGIN_STATE.PLAYING) {
-                 pause
+                // pause
                 _pluginTogglePause();
             }
             else if(state === false && inputState == PLUGIN_STATE.PAUSED) {
-                 unpause
+                // unpause
                 _pluginTogglePause();
             }
         }
         catch(e) {
-            _log(_pause exc  + e);
+            _log("_pause: exc: " + e);
         }
     }
     
@@ -2403,30 +2404,30 @@ TorrentStream.Player = function(container, conf)
     function onMediaLoaded(mediaData)
     {
         _mediaData = mediaData;
-        _log(onMediaLoaded autoplay= + _mediaData.autoplay +  force= + _forceAutoplay);
+        _log("onMediaLoaded: autoplay=" + _mediaData.autoplay + " force=" + _forceAutoplay);
         
         if(!_playerBlocked) {
-            if(_mediaData.autoplay  _forceAutoplay) {
-                _forceAutoplay = true;
+            if(_mediaData.autoplay || _forceAutoplay) {
+                _forceAutoplay = false;
                 if(self.playlistSize() == 1) {
                     _play();
                 }
             }
         }
         
-        onEvent(onMediaLoaded);
+        onEvent("onMediaLoaded");
     }
     
     function destroy()
     {
-        _log(destroy);
+        _log("destroy");
         try {
             stopTimers();
             content.parentNode.removeChild(content);
             content = null;
         }
         catch(e) {
-            _log(destroy exc  + e);
+            _log("destroy: exc: " + e);
         }
     }
     
@@ -2456,15 +2457,15 @@ TorrentStream.Player = function(container, conf)
     
     function onEventHandlerRegistered(handler)
     {
-        if(pluginData.version  VER_1_0_5) {
-             show notification about 1.0.5
+        if(pluginData.version < VER_1_0_5) {
+            // show notification about 1.0.5
             if(typeof handler.onSystemMessage === 'function') {
-                handler.onSystemMessage.call(self, notify_version_1_0_5);
+                handler.onSystemMessage.call(self, "notify_version_1_0_5");
             }
         }
     }
     
-     plugin helpers
+    // plugin helpers
     function _pluginTogglePause() {
         if(pluginData.qt) {
             content.playlistTogglePause();
@@ -2502,7 +2503,7 @@ TorrentStream.Player = function(container, conf)
             }
         }
         catch(e) {
-            _log(_pluginIsAdexc  + e);
+            _log("_pluginIsAd:exc: " + e);
             return false;
         }
     }
@@ -2517,7 +2518,7 @@ TorrentStream.Player = function(container, conf)
             }
         }
         catch(e) {
-            _log(_pluginIsInterruptableAdexc  + e);
+            _log("_pluginIsInterruptableAd:exc: " + e);
             return false;
         }
     }
@@ -2549,7 +2550,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     audio channel
+    // audio channel
     function _pluginGetAudioChannel() {
         if(pluginData.qt) {
             return content.audioChannel;
@@ -2568,7 +2569,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     subtitle
+    // subtitle
     function _pluginSubtitleCount() {
         if(pluginData.qt) {
             return content.subtitleCount;
@@ -2596,7 +2597,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     aspect ratio
+    // aspect ratio
     function _pluginGetAspectRatio() {
         if(pluginData.qt) {
             return content.videoAspectRatio;
@@ -2615,7 +2616,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     crop
+    // crop
     function _pluginGetCrop() {
         if(pluginData.qt) {
             return content.videoCrop;
@@ -2634,7 +2635,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     public methods
+    // public methods
     this.getEngineVersion = function() {
         try {
             return content.engineVersion;
@@ -2693,7 +2694,7 @@ TorrentStream.Player = function(container, conf)
             return _mediaData.id;
         }
         else {
-            return ;
+            return "";
         }
     };
     
@@ -2740,7 +2741,7 @@ TorrentStream.Player = function(container, conf)
     
     this.play = function(index, playConf) {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         _play(index, playConf);
@@ -2753,13 +2754,13 @@ TorrentStream.Player = function(container, conf)
     this.next = function() {
         
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         
         var nextIndex = self.playlistCurrentItem() + 1;
-        if(nextIndex = self.playlistSize()) {
-            onMessage(alert, noNextItem);
+        if(nextIndex >= self.playlistSize()) {
+            onMessage("alert", "noNextItem");
             return;
         }
         
@@ -2779,13 +2780,13 @@ TorrentStream.Player = function(container, conf)
     
     this.prev = function() {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         
         var prevIndex = self.playlistCurrentItem() - 1;
-        if(prevIndex  0) {
-            onMessage(alert, noPrevItem);
+        if(prevIndex < 0) {
+            onMessage("alert", "noPrevItem");
             return;
         }
         
@@ -2805,7 +2806,7 @@ TorrentStream.Player = function(container, conf)
     
     this.stop = function(fullstop) {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         stopContent(fullstop);
@@ -2822,15 +2823,15 @@ TorrentStream.Player = function(container, conf)
     
     this.volume = function(addVolume) {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         
         if(content) {
             var newVolume = 0, maxVolume;
             
-            if(pluginData.version  VER_2_0_10) {
-                addVolume = addVolume  2;
+            if(pluginData.version < VER_2_0_10) {
+                addVolume = addVolume * 2;
                 maxVolume = 200;
             }
             else {
@@ -2843,17 +2844,17 @@ TorrentStream.Player = function(container, conf)
             catch(e) {
                 return;
             }
-            if(newVolume  0) {
+            if(newVolume < 0) {
                 newVolume = 0;
             }
-            else if(newVolume  maxVolume) {
+            else if(newVolume > maxVolume) {
                 newVolume = maxVolume;
             }
             _pluginSetAudioVolume(newVolume);
             
             if(!pluginData.qt) {
-                if(pluginData.version  VER_2_0_10) {
-                    newVolume = Math.round(newVolume  2);
+                if(pluginData.version < VER_2_0_10) {
+                    newVolume = Math.round(newVolume / 2);
                 }
                 onVolume(newVolume);
                 pluginData.volume = newVolume;
@@ -2863,14 +2864,14 @@ TorrentStream.Player = function(container, conf)
 	
 	this.setVolume = function(newVolume) {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         
         if(content) {
             var maxVolume, volumeAdjust;
             
-            if(pluginData.version  VER_2_0_10) {
+            if(pluginData.version < VER_2_0_10) {
                 maxVolume = 200;
                 volumeAdjust = 2;
             }
@@ -2879,18 +2880,18 @@ TorrentStream.Player = function(container, conf)
                 volumeAdjust = 1;
             }
             
-		    newVolume = newVolume  volumeAdjust;
-			if(newVolume  0) {
+		    newVolume = newVolume * volumeAdjust;
+			if(newVolume < 0) {
 			    newVolume = 0;
 			}
-			else if(newVolume  maxVolume) {
+			else if(newVolume > maxVolume) {
 			    newVolume = maxVolume;
 			}
 			
 			_pluginSetAudioVolume(newVolume);
 			
 			if(!pluginData.qt) {
-                newVolume = Math.round(newVolume  volumeAdjust);
+                newVolume = Math.round(newVolume / volumeAdjust);
                 onVolume(newVolume);
                 pluginData.volume = newVolume;
             }
@@ -2899,7 +2900,7 @@ TorrentStream.Player = function(container, conf)
     
     this.toggleMute = function() {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         contentToggleMute();
@@ -2907,7 +2908,7 @@ TorrentStream.Player = function(container, conf)
     
     this.toggleFullscreen = function() {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         contentToggleFullscreen();
@@ -2915,7 +2916,7 @@ TorrentStream.Player = function(container, conf)
     
     this.position = function(pos) {
         if(_playerBlocked) {
-            _log(blocked);
+            _log("blocked");
             return;
         }
         
@@ -2923,20 +2924,20 @@ TorrentStream.Player = function(container, conf)
             return pluginData.progress;
         }
         
-        _log(position pos= + pos +  ad= + _pluginIsAd());
+        _log("position: pos=" + pos + " ad=" + _pluginIsAd());
         
             if( ! triggers.mediaStarted) {
-                _log(Cannot scroll, media not started);
+                _log("Cannot scroll, media not started");
                 return false;
             }
             
             if(_pluginIsAd() && !_pluginIsInterruptableAd()) {
-                _log(position cannot scroll ad);
+                _log("position: cannot scroll ad");
                 return false;
             }
             
             if(ts_status() != BGP_STATE.DOWNLOADING) {
-                _log(Cannot scroll, p2p is not in 'ready' status);
+                _log("Cannot scroll, p2p is not in 'ready' status");
                 return false;
             }
             
@@ -2953,22 +2954,22 @@ TorrentStream.Player = function(container, conf)
                 return true;
             }
             catch(e) {
-                _log(position exc  + e);
+                _log("position: exc: " + e);
             }
     };
     
     this.liveSeek = function(pos) {
         try {
-            _log(liveSeek pos= + pos);
-            content.playlistGetPlayerId(liveseek, pos, 0, 0);
+            _log("liveSeek: pos=" + pos);
+            content.playlistGetPlayerId("liveseek", pos, 0, 0);
         }
         catch(e) {
-            _log(liveSeekexc  + e);
+            _log("liveSeek:exc: " + e);
         }
     };
     
     this.getFiles = function() {
-        throw getFiles() is deprecated;
+        throw "getFiles() is deprecated";
     };
     
     this.playlistToggleEnabled = function(pos) {
@@ -3045,60 +3046,60 @@ TorrentStream.Player = function(container, conf)
     
     this.getPlaylistItem = function(pos) {
         if(pos !== null && pos !== undefined) {
-             get item at pos
+            // get item at pos
             if(pluginData.qt) {
                 return {
-                    name content.playlistItemTitle(pos),
-                    enabled content.playlistItemState(pos)
+                    name: content.playlistItemTitle(pos),
+                    enabled: content.playlistItemState(pos)
                 };
             }
             else if(conf.useInternalPlaylist) {
                 return {
-                    name content.playlist.ts_get_item_title(pos),
-                    enabled content.playlist.ts_get_item_state(pos)
+                    name: content.playlist.ts_get_item_title(pos),
+                    enabled: content.playlist.ts_get_item_state(pos)
                 };
             }
             else {
                 
                 if(!_playlist.items[pos]) {
-                    throw Invalid playlist item  + pos;
+                    throw "Invalid playlist item: " + pos;
                 }
                 
                 var index = _playlist.items[pos].index;
                 return {
-                    name _playlist.data[index],
-                    enabled _playlist.items[pos].enabled
+                    name: _playlist.data[index],
+                    enabled: _playlist.items[pos].enabled
                 };
             }
         }
         else {
-             get all playlist
+            // get all playlist
             var i, list = [];
             if(pluginData.qt) {
                 var itemCount = content.playlistCount;
-                for(i = 0; i  itemCount; i++) {
+                for(i = 0; i < itemCount; i++) {
                     list.push({
-                            name content.playlistItemTitle(i),
-                            enabled content.playlistItemState(i)
+                            name: content.playlistItemTitle(i),
+                            enabled: content.playlistItemState(i)
                     });
                 }
             }
             else if(conf.useInternalPlaylist) {
                 var itemCount = content.playlist.ts_item_count;
-                for(i = 0; i  itemCount; i++) {
+                for(i = 0; i < itemCount; i++) {
                     list.push({
-                            name content.playlist.ts_get_item_title(i),
-                            enabled content.playlist.ts_get_item_state(i)
+                            name: content.playlist.ts_get_item_title(i),
+                            enabled: content.playlist.ts_get_item_state(i)
                     });
                 }
             }
             else {
                 var index;
-                for(i = 0; i  self.playlistSize(); i++) {
+                for(i = 0; i < self.playlistSize(); i++) {
                     index = _playlist.items[i].index;
                     list.push({
-                            name _playlist.data[index],
-                            enabled _playlist.items[i].enabled
+                            name: _playlist.data[index],
+                            enabled: _playlist.items[i].enabled
                     });
                 }
             }
@@ -3130,7 +3131,7 @@ TorrentStream.Player = function(container, conf)
     
     this.audioTrack = function(val) {
         try {
-            if(pluginData.version = VER_1_0_4 && status.audio.track.count == 0) {
+            if(pluginData.version >= VER_1_0_4 && status.audio.track.count == 0) {
                 return -1;
             }
             
@@ -3152,11 +3153,11 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 
-                if(status.audio.track.count  0) {
-                    if(newValue  0) {
+                if(status.audio.track.count > 0) {
+                    if(newValue < 0) {
                         newValue = status.audio.track.values.length - 1;
                     }
-                    else if(newValue = status.audio.track.values.length) {
+                    else if(newValue >= status.audio.track.values.length) {
                         newValue = 0;
                     }
                 }
@@ -3167,7 +3168,7 @@ TorrentStream.Player = function(container, conf)
             return status.audio.track.current;
         }
         catch(e) {
-            _log(audioTrack  + e);
+            _log("audioTrack: " + e);
             return -1;
         }
     };
@@ -3192,10 +3193,10 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 
-                if(newValue  0) {
+                if(newValue < 0) {
                     newValue = status.audio.channel.values.length - 1;
                 }
-                else if(newValue = status.audio.channel.values.length) {
+                else if(newValue >= status.audio.channel.values.length) {
                     newValue = 0;
                 }
                 
@@ -3205,13 +3206,13 @@ TorrentStream.Player = function(container, conf)
             return status.audio.channel.current;
         }
         catch(e) {
-            _log(audioChannel  + e);
+            _log("audioChannel: " + e);
             return -1;
         }
     };
     
     this.subtitle = function(val) {
-        if(pluginData.version = VER_1_0_4 && status.video.subtitle.count == 0) {
+        if(pluginData.version >= VER_1_0_4 && status.video.subtitle.count == 0) {
             return -1;
         }
         
@@ -3234,27 +3235,27 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 
-                _log(subtitle newValue= + newValue);
-                _log(subtitle count= + status.video.subtitle.count);
+                _log("subtitle: newValue=" + newValue);
+                _log("subtitle: count=" + status.video.subtitle.count);
                 
-                if(status.video.subtitle.count  0) {
-                    if(newValue  0) {
+                if(status.video.subtitle.count > 0) {
+                    if(newValue < 0) {
                         newValue = status.video.subtitle.values.length - 1;
                     }
-                    else if(newValue = status.video.subtitle.values.length) {
+                    else if(newValue >= status.video.subtitle.values.length) {
                         newValue = 0;
                     }
                 }
                 
-                _log(subtitle newValue= + newValue);
+                _log("subtitle: newValue=" + newValue);
                 _pluginSetSubtitle(newValue);
                 status.video.subtitle.current = _pluginGetSubtitle();
-                _log(subtitle current= + status.video.subtitle.current);
+                _log("subtitle: current=" + status.video.subtitle.current);
             }
             return status.video.subtitle.current;
         }
         catch(e) {
-            _log(subtitle( + val + )  + e);
+            _log("subtitle(" + val + "): " + e);
             return -1;
         }
     };
@@ -3279,15 +3280,15 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 
-                if(newValue  0) {
+                if(newValue < 0) {
                     newValue = status.video.aspect_ratio.values.length - 1;
                 }
-                else if(newValue = status.video.aspect_ratio.values.length) {
+                else if(newValue >= status.video.aspect_ratio.values.length) {
                     newValue = 0;
                 }
                 
                 if(newValue == 0) {
-                    _pluginSetAspectRatio();
+                    _pluginSetAspectRatio("");
                 }
                 else {
                     _pluginSetAspectRatio(status.video.aspect_ratio.values[newValue]);
@@ -3297,14 +3298,14 @@ TorrentStream.Player = function(container, conf)
             return status.video.aspect_ratio.current;
         }
         catch(e) {
-            _log(aspectRatio  + e);
+            _log("aspectRatio: " + e);
             return 0;
         }
     };
     
     this.crop = function(val) {
         if(pluginData.version == VER_1_0_2) {
-            onSystemMessage(old_version_no_crop);
+            onSystemMessage("old_version_no_crop");
             return;
         }
         
@@ -3327,15 +3328,15 @@ TorrentStream.Player = function(container, conf)
                     }
                 }
                 
-                if(newValue  0) {
+                if(newValue < 0) {
                     newValue = status.video.crop.values.length - 1;
                 }
-                else if(newValue = status.video.crop.values.length) {
+                else if(newValue >= status.video.crop.values.length) {
                     newValue = 0;
                 }
                 
                 if(newValue == 0) {
-                    _pluginSetCrop();
+                    _pluginSetCrop("");
                 }
                 else {
                     _pluginSetCrop(status.video.crop.values[newValue]);
@@ -3345,18 +3346,18 @@ TorrentStream.Player = function(container, conf)
             return status.video.crop.current;
         }
         catch(e) {
-            _log(crop  + e);
+            _log("crop: " + e);
             return 0;
         }
     };
     
     this.getAffiliateId = function() {
-        return _mediaData  _mediaData.affiliateId  0;
+        return _mediaData ? _mediaData.affiliateId : 0;
     };
     
     this.registerEventHandler = function(handler) {
         if(typeof handler !== 'object') {
-            throw Event handler must be an object;
+            throw "Event handler must be an object";
         }
         
         onEventHandlerRegistered(handler);
@@ -3368,7 +3369,7 @@ TorrentStream.Player = function(container, conf)
             conf = {};
         }
         
-        url = url.replace(new RegExp('s+', 'g'), '%20');
+        url = url.replace(new RegExp('\\s+', 'g'), '%20');
         
         conf.type = MEDIA_TYPE.TORRENT_URL;
         conf.id = url;
@@ -3433,7 +3434,7 @@ TorrentStream.Player = function(container, conf)
         }
         
         try {
-            _log(getPlayerId infohash= + _mediaData.infohash +  d= + _mediaData.developerId +  a= + _mediaData.affiliateId +  z= + _mediaData.zoneId);
+            _log("getPlayerId: infohash=" + _mediaData.infohash + " d=" + _mediaData.developerId + " a=" + _mediaData.affiliateId + " z=" + _mediaData.zoneId);
             
             var playerId;
             if(pluginData.qt) {
@@ -3443,31 +3444,31 @@ TorrentStream.Player = function(container, conf)
                 playerId = content.playlist.getPlayerId(_mediaData.infohash, _mediaData.developerId, _mediaData.affiliateId, _mediaData.zoneId);
             }
             
-            _log(getPlayerId playerId= + playerId);
+            _log("getPlayerId: playerId=" + playerId);
             return playerId;
         }
         catch(e) {
-            _log(getPlayerIdexc  + e);
-            return ;
+            _log("getPlayerId:exc: " + e);
+            return "";
         }
     };
     
-    
-     init
-    _log(constructor container= + container);
+    ////////////////////////////////////////////////////////////////////////////
+    // init
+    _log("constructor: container=" + container);
     
     var defaultConf = {
-        useInternalPlaylist true,
-        useInternalControls false,
-        liveStreamControls false,
-        embedStyle null,
-        firefoxUnwrapEmbedObjects false,
-        embedWaitTime 0,
-        debug false,
-        bgColor 000000,
-        fontColor ffffff,
-        sendOnCompleted false,  send emulated onCompleted event (when we got onStop and the position is almost at the end)
-        needAuthToSeek false    user need to be authorized to seek
+        useInternalPlaylist: true,
+        useInternalControls: false,
+        liveStreamControls: false,
+        embedStyle: null,
+        firefoxUnwrapEmbedObjects: false,
+        embedWaitTime: 0,
+        debug: false,
+        bgColor: "000000",
+        fontColor: "ffffff",
+        sendOnCompleted: false, // send emulated onCompleted event (when we got onStop and the position is almost at the end)
+        needAuthToSeek: false   // user need to be authorized to seek
     };
     conf = TorrentStream.Utils.extend(defaultConf, conf);
     
@@ -3482,23 +3483,23 @@ TorrentStream.Player = function(container, conf)
     _platform = TorrentStream.Utils.detectPlatform();
     _browser = TorrentStream.Utils.detectBrowser();
     
-    if(android === _platform) {
+    if("android" === _platform) {
         return new TorrentStream.FakePlayer(container, conf);
     }
     
-     check whether plugin installed
+    // check whether plugin installed
     var availablePlugin = TorrentStream.Utils.detectPluginExt();
     if(availablePlugin.type == 0) {
         conf.checkInstalled = true;
         return new TorrentStream.FakePlayer(container, conf);
     }
     if(!availablePlugin.enabled) {
-        onPluginError(plugin_not_enabled);
+        onPluginError("plugin_not_enabled");
     }
     
     var useQtPlugin;
     if(_platform == 'windows') {
-        if(availablePlugin.type == 2  availablePlugin.type == 3) {
+        if(availablePlugin.type == 2 || availablePlugin.type == 3) {
             useQtPlugin = true;
         }
         else {
@@ -3508,7 +3509,7 @@ TorrentStream.Player = function(container, conf)
     else {
         useQtPlugin = true;
     }
-    _log(constructor platform= + _platform +  browser= + _browser +  availablePlugin= + availablePlugin.type +  useQtPlugin= + useQtPlugin);
+    _log("constructor: platform=" + _platform + " browser=" + _browser + " availablePlugin=" + availablePlugin.type + " useQtPlugin=" + useQtPlugin);
 
     pluginData.type = availablePlugin.type;
     if(useQtPlugin) {
@@ -3518,57 +3519,57 @@ TorrentStream.Player = function(container, conf)
         pluginData.qt = false;
     }
     
-    var asyncEmbed = (typeof conf.embedCallback === function);
+    var asyncEmbed = (typeof conf.embedCallback === "function");
     
     function afterEmbed(embedObject) {
-         check whether embed was successfull
+        // check whether embed was successfull
         if(!embedObject) {
             if(asyncEmbed) {
-                conf.embedCallback.call(self, false, plugin_not_enabled);
+                conf.embedCallback.call(self, false, "plugin_not_enabled");
                 return;
             }
             else {
-                throw plugin_not_enabled;
+                throw "plugin_not_enabled";
             }
         }
         
         content = embedObject;
         
-         check plugin version
+        // check plugin version
         if(content.version) {
             pluginData.stringVersion = content.version;
         }
         pluginData.version = getVersion(pluginData.stringVersion);
-        _log(version= + pluginData.stringVersion +  auth= + _authLevel());
+        _log("version=" + pluginData.stringVersion + " auth=" + _authLevel());
         
-        if(pluginData.version  VER_1_0_5) {
+        if(pluginData.version < VER_1_0_5) {
             conf.useInternalPlaylist = false;
             _playlist = {
-                data {},
-                items [],
-                currentItem -1
+                data: {},
+                items: [],
+                currentItem: -1
             };
-            throw force_version_1_0_5;
+            //throw "force_version_1_0_5";
         }
         
-         check version compatibility
+        // check version compatibility
         if(pluginData.version == VER_1_0_2) {
             if(asyncEmbed) {
-                conf.embedCallback.call(self, false, old_version_1_0_2);
+                conf.embedCallback.call(self, false, "old_version_1_0_2");
                 return;
             }
             else {
-                throw old_version_1_0_2;
+                throw "old_version_1_0_2";
             }
         }
         
         if(pluginData.events) {
-            _log(afterEmbed attach events);
+            _log("afterEmbed: attach events");
             attachPluginEvents();
             
             if(status.mediaState == MEDIA_STATE.CONNECTING) {
                 if(content.state != -1 && content.state != BGP_STATE.CONNECTING) {
-                    _log(afterEmbed bg connected);
+                    _log("afterEmbed: bg connected");
                     status.mediaState = MEDIA_STATE.IDLE;
                     onConnected();
                 }
@@ -3580,9 +3581,9 @@ TorrentStream.Player = function(container, conf)
                 triggers.skipMediaState = false;
             }
             
-             init state timer
-            if(pluginData.version  VER_1_0_5) {
-                 skip connecting state for old versions
+            // init state timer
+            if(pluginData.version < VER_1_0_5) {
+                // skip "connecting" state for old versions
                 status.mediaState = MEDIA_STATE.IDLE;
                 onConnected();
             }
@@ -3594,7 +3595,7 @@ TorrentStream.Player = function(container, conf)
         }
     }
     
-     Load plugin
+    // Load plugin
     if(asyncEmbed) {
         embedPlugin(container, conf.useInternalPlaylist, conf.embedStyle, conf.bgColor, conf.fontColor, afterEmbed);
     }
